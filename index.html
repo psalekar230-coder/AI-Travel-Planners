@@ -174,5 +174,8 @@ window.downloadPDF=(id)=>{let trip = allTripsData.find(t=>t.id==id);if(!trip){al
 window.exportAllPDF=()=>{const{jsPDF}=window.jspdf;const doc=new jsPDF();doc.setFontSize(18);doc.text("PS AI - All Trips Report",105,20,{align:"center"});let y=40;db.ref('trips').once('value').then(snapshot=>{snapshot.forEach(userSnap=>{snapshot.forEach(tripSnap=>{let t=tripSnap.val();doc.setFontSize(10);doc.text(`User:${userSnap.key} | ${t.dest} | ${t.date} | Rs.${t.budget}`, 20, y);y+=10;if(y>270){doc.addPage(); y=20;}})})});doc.save("All_Trips_Report.pdf")};
 
 </script>
+  <script>
+(function(){if(!window.chatbase||window.chatbase("getState")!=="initialized"){window.chatbase=(...arguments)=>{if(!window.chatbase.q){window.chatbase.q=[]}window.chatbase.q.push(arguments)};window.chatbase=new Proxy(window.chatbase,{get(target,prop){if(prop==="q"){return target.q}return(...args)=>target(prop,...args)}})}const onLoad=function(){const script=document.createElement("script");script.src="https://www.chatbase.co/embed.min.js";script.id="ZdBqHeYbHY4yKYYfAFnG0";script.domain="www.chatbase.co";document.body.appendChild(script)};if(document.readyState==="complete"){onLoad()}else{window.addEventListener("load",onLoad)}})();
+</script>
 </body>
 </html>
