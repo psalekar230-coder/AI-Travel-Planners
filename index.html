@@ -1,181 +1,1090 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PS AI Travel Planner</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap');
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif}
-body{background:linear-gradient(135deg,#FFE5F1 0%,#E0F7FA 100%);padding:20px;padding-bottom:120px}
-.logo{display:flex;align-items:center;gap:12px}
-.logo img{width:55px;height:55px;border-radius:10px;background:#000;padding:3px;border:2px solid #D4AF37;object-fit:cover}
-.navbar{background:linear-gradient(135deg,#FFB3D1 0%,#B3E5FC 100%);padding:12px 20px;border-radius:20px;margin-bottom:20px;display:flex;justify-content:space-between;flex-wrap:wrap}
-.nav-icon{background:#FFF;padding:10px 15px;border-radius:12px;cursor:pointer;text-align:center;min-width:90px;margin:5px;transition:0.3s}
-.nav-icon:hover{transform:scale(1.05)}
-.box{background:#FFF;padding:30px;border-radius:20px;max-width:1200px;margin:20px auto;box-shadow:0 10px 30px rgba(0,0,0,0.1)}
-input,button,select{width:100%;padding:14px;margin:10px 0;border-radius:12px;border:2px solid #FFE5F1;font-size:14px}
-button{background:linear-gradient(135deg,#FFB3D1 0%,#B3E5FC 100%);border:none;font-weight:600;cursor:pointer;transition:0.3s}
-button:hover{transform:translateY(-2px)}
-.booking-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
-.booking-card{background:#FFF0F7;padding:15px;border-radius:15px;border:2px solid #FFE5F1;transition:0.3s}
-.booking-card:hover{transform:translateY(-5px);box-shadow:0 8px 20px rgba(255,105,180,0.2)}
-.booking-card img{width:100%;height:160px;object-fit:cover;border-radius:10px}
-.badge{padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600}
-.couple-badge{background:#FFB3D1}.family-badge{background:#B3E5FC}.friends-badge{background:#A5D6A7}
-.army-badge{background:linear-gradient(135deg,#4CAF50 0%,#2E7D32 100%);color:white}
-.admin-badge{background:linear-gradient(135deg,#FF5252 0%,#E53935 100%);color:white}
-.btn-book{background:linear-gradient(135deg,#66BB6A 0%,#43A047 100%);color:white;padding:10px;border-radius:10px;border:none;width:100%;margin-top:10px}
-.btn-delete{background:linear-gradient(135deg,#FF5252 0%,#E53935 100%);color:white;padding:10px;border-radius:10px;border:none;width:48%;margin-top:10px}
-.btn-edit{background:linear-gradient(135deg,#42A5F5 0%,#1E88E5 100%);color:white;padding:10px;border-radius:10px;border:none;width:48%;margin-top:10px}
-.btn-army{background:linear-gradient(135deg,#FF9800 0%,#F57C00 100%);color:white;padding:10px;border-radius:10px;border:none;width:100%;margin-top:10px;font-weight:700}
-#mainBox{display:none}
-footer{text-align:center;padding:20px;background:linear-gradient(135deg,#FFB3D1 0%,#B3E5FC 100%);position:fixed;bottom:0;left:0;width:100%;font-weight:600}
-.footer-thank{color:#FF1493;font-weight:700;font-size:16px}
-.footer-name{color:#000;font-size:12px;margin-top:5px}
-.page{display:none}.page.active{display:block}
-.login-logo{text-align:center}
-.login-logo img{width:140px;height:140px;border-radius:50%;background:#000;padding:10px;border:4px solid #D4AF37;box-shadow:0 0 25px rgba(212,175,55,0.6);object-fit:cover}
-.ai-suggestion{background:linear-gradient(135deg,#E1F5FE 0%,#FFF3E0 100%);padding:15px;border-radius:12px;margin:10px 0;border-left:4px solid #FF69B4}
-.army-offer{background:linear-gradient(135deg,#C8E6C9 0%,#A5D6A7 100%);padding:20px;border-radius:15px;margin:20px 0;border:3px dashed #2E7D32;text-align:center}
-.map-box{width:100%;height:200px;border-radius:12px;border:2px solid #FFE5F1}
-.filter-btn{padding:8px 15px;border-radius:20px;border:2px solid #FFB3D1;background:white;cursor:pointer;margin:5px}
-.filter-btn.active{background:linear-gradient(135deg,#FFB3D1 0%,#B3E5FC 100%)}
-.qr-box{display:flex;justify-content:center;margin:10px 0}
-.passenger-inputs{display:none}
-.toast{position:fixed;top:20px;right:20px;background:#66BB6A;color:white;padding:15px 20px;border-radius:10px;z-index:9999;display:none}
-#celebration{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);display:none;z-index:10000;justify-content:center;align-items:center;flex-direction:column}
-.big-thank{font-size:48px;color:#FFD700;font-weight:800;text-align:center;animation:bounce 1s infinite}
-@keyframes bounce{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
-.balloon{position:absolute;width:60px;height:80px;border-radius:50% 50% 50% 50% / 60% 60% 40% 40%;animation:float 4s infinite}
-@keyframes float{0%{bottom:-100px}100%{bottom:100vh;opacity:0}}
-.modal{display:none;position:fixed;z-index:9999;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,0.5)}
-.modal-content{background:white;margin:10% auto;padding:20px;border-radius:15px;width:90%;max-width:500px}
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>PS AI Travel — 20+ Slide App with Auth, Booking & Admin</title>
+
+  <!-- Libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+  <!-- Firebase (compat libs for easier migration) -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <style>
+    :root{
+      /* refreshed, attractive color theme */
+      --bgA:#FFF5FB; --bgB:#F0FDFF; --card:#ffffff;
+      --accent1:#FF6FA3; /* pink */
+      --accent2:#4CD3A6; /* mint */
+      --accent3:#6C5CE7; /* purple accent for variety */
+      --muted:#6B7280;
+      --radius:14px;
+    }
+    *{box-sizing:border-box;font-family:'Poppins',sans-serif}
+    body{margin:0;background:linear-gradient(135deg,var(--bgA),var(--bgB));padding:18px;color:#0f1724}
+    header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+    .brand{display:flex;align-items:center;gap:12px}
+    .brand img{width:64px;height:64px;border-radius:12px;box-shadow:0 10px 36px rgba(108,92,231,0.12);border:3px solid rgba(108,92,231,0.12);object-fit:cover}
+    h1{margin:0;font-size:18px}
+    .muted{color:var(--muted);font-size:13px}
+    nav{display:flex;gap:8px;flex-wrap:wrap}
+    button.btn{padding:10px 14px;border-radius:12px;border:none;cursor:pointer;background:#fff;box-shadow:0 6px 20px rgba(2,6,23,0.06);color:#222}
+    .btn-primary{background:linear-gradient(90deg,var(--accent1),#FFD29F);font-weight:700;color:#222}
+    .btn-accent{background:linear-gradient(90deg,var(--accent3),var(--accent2));color:#fff;font-weight:700}
+    .stage{max-width:1200px;margin:0 auto;background:var(--card);padding:16px;border-radius:14px;box-shadow:0 16px 40px rgba(2,6,23,0.06)}
+    .slides{position:relative;overflow:hidden;height:560px;border-radius:12px;background:linear-gradient(180deg,#fff,#fff);padding:12px}
+    .slide{position:absolute;inset:0;padding:12px;display:none;overflow:auto}
+    .slide.active{display:block;animation:fade 360ms ease}
+    @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+    .slide-grid{display:grid;grid-template-columns:1fr 360px;gap:12px}
+    .card{background:linear-gradient(180deg,#fff,#fff);padding:12px;border-radius:12px;border:1px solid #f4e7f3;box-shadow:0 8px 26px rgba(15,23,42,0.04)}
+    .big-image{width:100%;height:200px;object-fit:cover;border-radius:8px}
+    .muted-small{color:var(--muted);font-size:13px}
+    .slide-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+    .progress{height:8px;background:#f1f5f9;border-radius:8px;margin-top:12px}
+    .progress > i{height:100%;display:block;background:linear-gradient(90deg,#FFB3D1,#66BB6A);width:0%}
+    .slides-nav{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+    .thumb{padding:6px 8px;border-radius:8px;background:#fff;border:1px solid #f4e7f3;cursor:pointer;font-size:13px}
+    .layout{display:grid;grid-template-columns:1fr 380px;gap:16px;margin-top:16px}
+    .booking-form input,.booking-form select{width:100%;padding:10px;border-radius:10px;border:1px solid #f1e7f6;margin-top:8px}
+    table{width:100%;border-collapse:collapse;margin-top:8px}
+    th,td{padding:8px;border-bottom:1px solid #f4eff4;text-align:left;font-size:13px}
+    footer{margin-top:18px;text-align:center;color:#222;font-weight:700;padding:12px;background:linear-gradient(90deg,#fff,#fff);border-radius:12px}
+    @media (max-width:980px){ .slide-grid{grid-template-columns:1fr} .slides{height:840px} .layout{grid-template-columns:1fr} .brand img{width:56px;height:56px} }
+    .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;z-index:9999}
+    .modal{background:#fff;padding:18px;border-radius:12px;width:420px;max-width:94%}
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+    /* About card styles */
+    .about-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .about-list{margin:0;padding-left:18px}
+    .small-link{color:var(--accent3);font-weight:600;text-decoration:none}
+    #authArea .welcome{display:inline-flex;gap:8px;align-items:center}
+    #authArea .btn{min-width:110px}
+  </style>
 </head>
 <body>
+  <header>
+    <div class="brand">
+      <img alt="PS AI" id="logoImg" src="data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23FF6FA3%22/%3E%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%234CD3A6%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20rx%3D%2220%22%20width%3D%22120%22%20height%3D%22120%22%20fill%3D%22url(%23g)%22/%3E%3Cpath%20d%3D%22M30%2068c8-12%2030-18%2046-6%22%20stroke%3D%22white%22%20stroke-width%3D%224%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%3Ccircle%20cx%3D%2288%22%20cy%3D%2228%22%20r%3D%2210%22%20fill%3D%22white%22%20opacity%3D%220.85%22/%3E%3C/svg%3E" />
+      <div>
+        <h1>PS AI Travel Planner</h1>
+        <div class="muted">Interactive slides + Booking + Admin — Developer: Pooja Salekar (KBP Polytechnic, Satara, 2026)</div>
+      </div>
+    </div>
 
-<div id="toast" class="toast"></div>
-<div id="celebration"><div class="big-thank">🎉 THANK YOU! 🎉<br><span style="font-size:24px;color:white">Your Trip is Booked Successfully!</span></div></div>
+    <nav id="topNav">
+      <button class="btn btn-primary" onclick="gotoSlide(1)"><i class="fa-solid fa-play"></i> Start Slides</button>
+      <button class="btn" onclick="randomSlide()">Surprise Slide</button>
+      <button class="btn btn-accent" onclick="openBookingPanel()">Book Now</button>
+      <button class="btn" onclick="openAdmin()">Admin Panel</button>
+      <!-- Auth area will be injected here -->
+      <span id="authArea"></span>
+    </nav>
+  </header>
 
-<!-- EDIT MODAL -->
-<div id="editModal" class="modal">
-  <div class="modal-content">
-    <h3>Edit Trip</h3>
-    <input id="editDest" placeholder="Destination">
-    <input id="editDate" type="date">
-    <input id="editBudget" type="number" placeholder="Budget">
-    <input id="editTickets" type="number" placeholder="Tickets">
-    <div id="editPassengerInputs"></div>
-    <button onclick="updateTrip()">Update Trip</button>
-    <button onclick="closeEditModal()" style="background:#FF5252;color:white">Cancel</button>
+  <main class="stage">
+    <div class="slides" id="slidesContainer" aria-live="polite"></div>
+    <div class="slides-nav" id="slidesNav" aria-hidden="false"></div>
+    <div class="progress" title="Progress"><i id="progBar"></i></div>
+
+    <div class="layout" style="margin-top:14px">
+      <section class="card">
+        <h3>Quick Booking</h3>
+        <div class="booking-form">
+          <label>Full Name</label><input id="name" placeholder="Passenger name">
+          <label>Email</label><input id="email" type="email" placeholder="you@example.com">
+          <label>Phone</label><input id="phone" placeholder="+91 9XXXXXXXXX">
+
+          <div style="display:flex;gap:8px">
+            <div style="flex:1">
+              <label>Type</label>
+              <select id="type"><option value="flight">Flight</option><option value="hotel">Hotel</option><option value="bus">Bus</option><option value="cab">Cab</option></select>
+            </div>
+            <div style="flex:1">
+              <label>Passengers</label><select id="passengers"><option>1</option><option>2</option><option>3</option><option>4</option></select>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:8px">
+            <div style="flex:1"><label>From</label><input id="from" placeholder="City / Airport"></div>
+            <div style="flex:1"><label>To</label><input id="to" placeholder="City / Airport"></div>
+          </div>
+
+          <div style="display:flex;gap:8px">
+            <div style="flex:1"><label>Date</label><input id="date" type="date"></div>
+            <div style="flex:1"><label>Price (₹)</label><input id="price" type="number" placeholder="e.g. 4500"></div>
+          </div>
+
+          <div style="margin-top:10px;display:flex;gap:8px">
+            <button class="btn btn-primary" onclick="generateBooking()">Generate Ticket & Save</button>
+            <button class="btn" onclick="clearForm()">Clear</button>
+            <button class="btn" onclick="autoFillSample()">Sample</button>
+          </div>
+          <div id="bookMsg" style="margin-top:8px;color:green"></div>
+        </div>
+      </section>
+
+      <aside class="card">
+        <h4>Admin & My Bookings</h4>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button class="btn" onclick="openAdmin()">Open Admin</button>
+          <button class="btn btn-accent" onclick="showMyBookings()">My Bookings</button>
+        </div>
+
+        <hr style="margin:12px 0;border:none;border-top:1px dashed #f3e8f6">
+
+        <h4>Recent Bookings</h4>
+        <div id="recentList" class="muted-small">No bookings yet.</div>
+
+        <div style="margin-top:12px">
+          <button class="btn" onclick="exportAllCSV()">Export CSV</button>
+          <button class="btn" onclick="openMapsSearch()">Open Map</button>
+        </div>
+      </aside>
+    </div>
+
+    <!-- About Project & Credits -->
+    <div style="margin-top:16px" class="card">
+      <h3>About Project & Credits</h3>
+      <div class="about-grid" style="margin-top:8px">
+        <div>
+          <h4>Project Developer</h4>
+          <ul class="about-list">
+            <li><strong>Name:</strong> pooja Nandkumar Salekar</li>
+            <li><strong>College:</strong> K.B.P. Polytechnic, Satara.</li>
+            <li><strong>Course:</strong> Computer engineering</li>
+            <li><strong>Year:</strong> tyco</li>
+            <li><strong>Live URL (Home):</strong> <a id="liveDemoLink" class="small-link" href="https://share.google/c8FBdAjZU0lVdtiKP" target="_blank">https://share.google/c8FBdAjZU0lVdtiKP</a></li>
+            <li><strong>LinkedIn:</strong> <a id="linkedinLink" class="small-link" href="https://www.linkedin.com/in/pooja-salekar-518a8b415?utm_source=share_via&utm_content=profile&utm_medium=member_android" target="_blank">https://www.linkedin.com/in/pooja-salekar-518a8b415?utm_source=share_via&utm_content=profile&utm_medium=member_android</a></li>
+            <li><strong>GitHub:</strong> <a id="githubLink" class="small-link" href="https://github.com/psalekar230-coder" target="_blank">https://github.com/psalekar230-coder</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Internship & Mentors</h4>
+          <ul class="about-list">
+            <li><strong>Internship:</strong> Intership at IRCT Satara</li>
+            <li><strong>Guidance:</strong> Mahesh Lakade Sir</li>
+            <li><strong>Tech Learning:</strong> Digital Shende Sir</li>
+            <li><strong>Coordinator:</strong> Shubham Sir</li>
+            <li><strong>Mentor:</strong> Deshmukh Miss</li>
+          </ul>
+        </div>
+      </div>
+
+      <hr style="margin:12px 0;border:none;border-top:1px dashed #f3e8f6">
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+        <div>
+          <h4>How to use in real-life projects</h4>
+          <ol style="margin:6px 0 0 18px" class="muted-small">
+            <li>Deploy the app (static hosting or small VPS) and configure a proper backend (optional) to store bookings centrally instead of localStorage.</li>
+            <li>Integrate OAuth (Google/OTP) for smoother sign-in, and replace client-side hashing with secure server-side authentication for production.</li>
+            <li>Connect to third-party APIs (flights, hotels, maps) to provide live prices and availability instead of sample data.</li>
+            <li>Use an email/SMS service to send booking confirmations and PNRs to users.</li>
+            <li>Add role-based access and admin dashboards for reporting, and move exports to server-side generation for larger datasets.</li>
+            <li>Ensure privacy and compliance (secure storage of user data, TLS, backups).</li>
+          </ol>
+        </div>
+
+        <div>
+          <h4>Features of AI Travel Planner app</h4>
+          <ul style="margin:6px 0 0 18px" class="muted-small">
+            <li>Interactive slide-based destination presentation with maps and quick links.</li>
+            <li>Local demo search for hotels, flights, buses and cabs with quick booking buttons.</li>
+            <li>User authentication (signup/login) with admin role and session preservation.</li>
+            <li>Booking creation, local storage, PDF ticket generation with QR code.</li>
+            <li>Admin panel: view bookings, export CSV, delete entries, and download tickets.</li>
+            <li>Itinerary generator and AI suggestions for each destination (sample rules/phrases).</li>
+            <li>Export and reporting capabilities (CSV) for offline analysis.</li>
+            <li>Extensible front-end to integrate real APIs and backend services for production.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Booking panel (slide-triggered) -->
+  <div id="bookingPanel" style="display:none;position:fixed;right:20px;bottom:120px;width:420px;max-width:calc(100% - 40px);z-index:9999">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <strong>Booking Panel</strong>
+        <button class="btn" onclick="document.getElementById('bookingPanel').style.display='none'">Close</button>
+      </div>
+      <div style="margin-top:8px" id="bookingPanelBody"></div>
+    </div>
   </div>
-</div>
 
-<div class="navbar">
-  <div class="logo">
-    <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBxISEhUSEhIVFRUVFRUVFRUVFRUVFRUWFhUVFRUYHSggGBolHRUVITEhJSkrLi4uFx8zODMtNygtLisBCgoKDg0OGxAQGy0lICAtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLf/AABEIAKgBLAMBIgACEQEDEQH/xAAbAAACAgMBAAAAAAAAAAAAAAAEBQIDBgABB//EAEMQAAECBAMGBQcFBQkAAAAAAAECAAMEBREhBhIxQVEiMmEFcYGRoQYUI0LRBxSywRUkQlNi/8QAGgEBAAMBAQEAAAAAAAAAAAAAAQIDBAEFAP/EAD4RAAECBAQDBAIBBwEAAAAAAAABAhEDBCExEkEFEiJRYQQTMnGBkaEUIrHR8DNDU3KC/9oADAMBAAIRAxEAPwD1iKKKAP/9k=" alt="PS AI Logo">
-    <div><h1 style="font-size:18px">PS AI TRAVEL PLANNER</h1><p style="font-size:10px">The standard for global travel</p></div>
+  <!-- My Bookings Modal -->
+  <div id="myBookings" style="display:none;position:fixed;left:20px;bottom:120px;width:520px;max-width:calc(100% - 40px);z-index:9999">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <strong>My Bookings</strong>
+        <button class="btn" onclick="document.getElementById('myBookings').style.display='none'">Close</button>
+      </div>
+      <div id="myBookingsContent" style="margin-top:8px"></div>
+    </div>
   </div>
-  <div style="display:flex;flex-wrap:wrap">
-    <div class="nav-icon" onclick="showPage('home')"><i class="fa-solid fa-house"></i><br><span>Home</span></div>
-    <div class="nav-icon" onclick="showPage('destinations')"><i class="fa-solid fa-map"></i><br><span>Destinations</span></div>
-    <div class="nav-icon" onclick="showPage('hotels')"><i class="fa-solid fa-hotel"></i><br><span>Hotels</span></div>
-    <div class="nav-icon" onclick="showPage('transport')"><i class="fa-solid fa-bus"></i><br><span>Transport</span></div>
-    <div class="nav-icon" onclick="showPage('addtrip')"><i class="fa-solid fa-plus"></i><br><span>Add Trip</span></div>
-    <div class="nav-icon" onclick="showPage('mytrips')"><i class="fa-solid fa-suitcase"></i><br><span>My Trips</span></div>
-    <div class="nav-icon" onclick="showPage('army')"><i class="fa-solid fa-shield-halved"></i><br><span>Army Offer</span></div>
-    <div class="nav-icon" id="adminNavBtn" onclick="showPage('admin')" style="display:none"><i class="fa-solid fa-user-shield"></i><br><span>Admin Panel</span></div>
+
+  <!-- Admin Panel -->
+  <div id="adminPanel" style="display:none;position:fixed;right:20px;bottom:120px;width:900px;max-width:calc(100% - 40px);z-index:9999">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <strong>Admin Panel — Bookings</strong>
+        <div>
+          <button class="btn btn-primary" onclick="exportAllCSV()">Export CSV</button>
+          <button class="btn" onclick="document.getElementById('adminPanel').style.display='none'">Close</button>
+        </div>
+      </div>
+      <div style="margin-top:12px">
+        <table>
+          <thead><tr><th>#</th><th>User</th><th>Name</th><th>Type</th><th>Route / Hotel</th><th>Price</th><th>Date</th><th>Actions</th></tr></thead>
+          <tbody id="adminTableBody"></tbody>
+        </table>
+      </div>
+    </div>
   </div>
-</div>
-<div id="loginBox" class="box">
-  <div class="login-logo">
-    <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBxISEhUSEhIVFRUVFRUVFRUVFRUVFRUWFhUVFRUYHSggGBolHRUVITEhJSkrLi4uFx8zODMtNygtLisBCgoKDg0OGxAQGy0lICAtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLf/AABEIAKgBLAMBIgACEQEDEQH/xAAbAAACAgMBAAAAAAAAAAAAAAAEBQIDBgABB//EAEMQAAECBAMGBQcFBQkAAAAAAAECAAMEBREhBhIxQVEiMmEFcYGRoQYUI0LRBxSywRUkQlNi/8QAGgEBAAMBAQEAAAAAAAAAAAAAAQIDBAEFAP/EAD4RAAECBAQDBAIBBwEAAAAAAAABAhEDBCExEkEFEiJRYQQTMnGBkaEUIrHR8DNDU3KC/9oADAMBAAIRAxEAPwD1iKKKAP/9k=" alt="PS AI Logo">
-    <h2>Welcome to My AI Trip Planner</h2>
+
+  <!-- Login / Signup Modal (hidden) -->
+  <div id="authModal" style="display:none" class="modal-backdrop" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+      <h3 id="authTitle">Login</h3>
+      <div id="authForms">
+        <!-- Login form -->
+        <div id="loginForm">
+          <label>Email</label><input id="loginEmail" type="email" placeholder="you@example.com">
+          <label>Password</label><input id="loginPassword" type="password" placeholder="Password">
+          <div style="margin-top:10px;display:flex;gap:8px">
+            <button class="btn btn-primary" onclick="login()">Login</button>
+            <button class="btn" onclick="showSignup()">Create Account</button>
+            <button class="btn" onclick="hideAuthModal()">Close</button>
+          </div>
+          <div id="loginMsg" style="margin-top:8px;color:red"></div>
+        </div>
+
+        <!-- Signup form -->
+        <div id="signupForm" style="display:none">
+          <label>Full Name</label><input id="signupName" placeholder="Full name">
+          <label>Email</label><input id="signupEmail" type="email" placeholder="you@example.com">
+          <label>Password</label><input id="signupPassword" type="password" placeholder="Password">
+          <label>Confirm Password</label><input id="signupPassword2" type="password" placeholder="Confirm Password">
+          <div style="margin-top:10px;display:flex;gap:8px">
+            <button class="btn btn-primary" onclick="signup()">Create Account</button>
+            <button class="btn" onclick="showLogin()">Back to Login</button>
+          </div>
+          <div id="signupMsg" style="margin-top:8px;color:red"></div>
+        </div>
+      </div>
+    </div>
   </div>
-  <input id="emailInput" placeholder="Enter Email">
-  <input id="passInput" type="password" placeholder="Enter Password">
-  <button onclick="login()">Login</button>
-  <button onclick="createAccount()" style="background:linear-gradient(135deg,#A5D6A7 0%,#66BB6A 100%);color:white">Create Account</button>
-  <p style="color:green;text-align:center">Admin: admin@ai.com / 123</p>
-</div>
 
-<div id="mainBox">
-  <div id="home" class="box page active"><div style="display:flex;justify-content:space-between;align-items:center"><h2 id="welcome"></h2><button onclick="logout()" style="width:120px;background:#FF5252;color:white">Logout</button></div><h3>12 Famous Destinations</h3><div class="booking-grid" id="homeDestinations"></div></div>
-  <div id="destinations" class="box page"><h2>Destinations with Map + AI</h2><div class="booking-grid" id="allDestinations"></div></div>
-  <div id="hotels" class="box page"><h2>Hotels - All 12 Cities</h2><select id="hotelDestinationSelect" onchange="loadHotels()"><option value="goa">Goa</option><option value="manali">Manali</option><option value="kashmir">Kashmir</option><option value="kerala">Kerala</option><option value="rajasthan">Rajasthan</option><option value="shimla">Shimla</option><option value="mumbai">Mumbai</option><option value="delhi">Delhi</option><option value="agra">Agra</option><option value="ladakh">Ladakh</option><option value="ooty">Ooty</option><option value="darjeeling">Darjeeling</option></select><div><button class="filter-btn active" onclick="filterHotels('all')">All</button><button class="filter-btn" onclick="filterHotels('couple')">Couple</button><button class="filter-btn" onclick="filterHotels('family')">Family</button><button class="filter-btn" onclick="filterHotels('friends')">Friends</button></div><div class="booking-grid" id="hotelList"></div></div>
-  <div id="transport" class="box page"><h2>Book Transport - Bus, Flight, Cab, Bike</h2><input id="transFrom" placeholder="From City"><input id="transTo" placeholder="To City"><input id="transDate" type="date"><select id="transType"><option value="bus">Bus</option><option value="flight">Flight</option><option value="cab">Cab</option><option value="bike">Bike Rental</option></select><button onclick="searchTransport()">Search</button><div class="booking-grid" id="transList"></div></div>
-  <div id="army" class="box page"><h2><i class="fa-solid fa-shield-halved"></i> Special Offer for Indian Army Personnel</h2><div class="army-offer"><h3 style="color:#2E7D32;font-size:24px">🇮🇳 JAI HIND 🇮🇳</h3><p style="font-size:18px;margin:10px 0">100% FREE Travel for Army Personnel</p></div><h3>Available Free Destinations for Army</h3><div class="booking-grid" id="armyDestinations"></div></div>
-  <div id="addtrip" class="box page"><h2>Add Trip - AI Suggest + Passenger Names</h2><input id="destination" placeholder="Destination" onkeyup="aiSuggest()"><div id="aiSuggestionBox"></div><select id="tickets" onchange="generatePassengerInputs()"><option value="1">1 Ticket</option><option value="2">2 Tickets</option><option value="3">3 Tickets</option><option value="4">4 Tickets</option><option value="5">5 Tickets</option></select><div id="passengerInputs" class="passenger-inputs"></div><input id="date" type="date"><input id="budget" type="number" placeholder="Budget"><button onclick="saveTrip()">Save Trip + PDF Ticket</button></div>
-  <div id="mytrips" class="box page"><h2>Your Trips</h2><div id="trips"></div></div>
-  <div id="admin" class="box page"><h2><i class="fa-solid fa-user-shield"></i> Admin Panel - All Users Trips CRUD</h2><button onclick="exportAllPDF()" style="background:linear-gradient(135deg,#66BB6A 0%,#43A047 100%);color:white">Download All Trips PDF</button><div id="adminTrips"></div></div>
-</div>
+  <footer>
+    Developed by: Pooja Salekar • K.B.P. Polytechnic, Satara. • Inplant Training 2026
+  </footer>
 
-<footer><div class="footer-thank">✈️ Thank You & Happy Journey ✈️</div><div class="footer-name">Developed by: Pooja Nandkumar Salekar | Inplant Training 2026</div></footer>
-<script>
-const firebaseConfig = {apiKey: "AIzaSyBXLQxRyqXoHwUIJqJhAaJybyaRT1FPLL0",authDomain: "ai-travel-planner-c2026.firebaseapp.com",databaseURL: "https://ai-travel-planner-c2026-default-rtdb.firebaseio.com",projectId: "ai-travel-planner-c2026",storageBucket: "ai-travel-planner-c2026.firebasestorage.app",messagingSenderId: "360976500854",appId: "1:360976500854:web:c8a01ba17325e03177f757"};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-const auth = firebase.auth();
-
-let currentUser="",allTripsData=[],currentFilter='all',isAdmin=false,editTripId="",editTripUser="";
-const logoBase64 = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBxISEhUSEhIVFRUVFRUVFRUVFRUVFRUWFhUVFRUYHSggGBolHRUVITEhJSkrLi4uFx8zODMtNygtLisBCgoKDg0OGxAQGy0lICAtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLf/AABEIAKgBLAMBIgACEQEDEQH/xAAbAAACAgMBAAAAAAAAAAAAAAAEBQIDBgABB//EAEMQAAECBAMGBQcFBQkAAAAAAAECAAMEBREhBhIxQVEiMmEFcYGRoQYUI0LRBxSywRUkQlNi/8QAGgEBAAMBAQEAAAAAAAAAAAAAAQIDBAEFAP/EAD4RAAECBAQDBAIBBwEAAAAAAAABAhEDBCExEkEFEiJRYQQTMnGBkaEUIrHR8DNDU3KC/9oADAMBAAIRAxEAPwD1iKKKAP/9k=";
-
-const destinations={goa:{name:"Goa",img:"https://picsum.photos/seed/goa/800/500",tip:"Nov-Feb. Baga Beach",budget:12000,days:3,map:"https://www.google.com/maps?q=Goa&output=embed"},manali:{name:"Manali",img:"https://picsum.photos/seed/manali/800/500",tip:"Mar-Jun. Rohtang",budget:15000,days:4,map:"https://www.google.com/maps?q=Manali&output=embed"},kashmir:{name:"Kashmir",img:"https://picsum.photos/seed/kashmir/800/500",tip:"Apr-Oct. Gulmarg",budget:25000,days:5,map:"https://www.google.com/maps?q=Kashmir&output=embed"},kerala:{name:"Kerala",img:"https://picsum.photos/seed/kerala/800/500",tip:"Sep-Mar. Alleppey",budget:20000,days:4,map:"https://www.google.com/maps?q=Kerala&output=embed"},rajasthan:{name:"Rajasthan",img:"https://picsum.photos/seed/rajasthan/800/500",tip:"Oct-Mar. Jaipur",budget:22000,days:5,map:"https://www.google.com/maps?q=Rajasthan&output=embed"},shimla:{name:"Shimla",img:"https://picsum.photos/seed/shimla/800/500",tip:"Mar-Jun. Mall Road",budget:18000,days:3,map:"https://www.google.com/maps?q=Shimla&output=embed"},mumbai:{name:"Mumbai",img:"https://picsum.photos/seed/mumbai/800/500",tip:"Nov-Feb. Gateway",budget:8000,days:2,map:"https://www.google.com/maps?q=Mumbai&output=embed"},delhi:{name:"Delhi",img:"https://picsum.photos/seed/delhi/800/500",tip:"Oct-Mar. Red Fort",budget:10000,days:3,map:"https://www.google.com/maps?q=Delhi&output=embed"},agra:{name:"Agra",img:"https://picsum.photos/seed/agra/800/500",tip:"Oct-Mar. Taj",budget:9000,days:2,map:"https://www.google.com/maps?q=Agra&output=embed"},ladakh:{name:"Ladakh",img:"https://picsum.photos/seed/ladakh/800/500",tip:"Jun-Sep. Pangong",budget:30000,days:5,map:"https://www.google.com/maps?q=Ladakh&output=embed"},ooty:{name:"Ooty",img:"https://picsum.photos/seed/ooty/800/500",tip:"Sep-Jun. Tea Garden",budget:16000,days:3,map:"https://www.google.com/maps?q=Ooty&output=embed"},darjeeling:{name:"Darjeeling",img:"https://picsum.photos/seed/darjeeling/800/500",tip:"Mar-May. Toy Train",budget:17000,days:3,map:"https://www.google.com/maps?q=Darjeeling&output=embed"}};
-
-const hotelsData={goa:[{name:"Taj Exotica",img:"https://picsum.photos/seed/tajgoa/400/300",price:15000,rating:4.8,category:"couple",desc:"Beach resort"},{name:"Radisson",img:"https://picsum.photos/seed/radissongoa/400/300",price:8000,rating:4.5,category:"family",desc:"Family pool"}],manali:[{name:"Manali Resort",img:"https://picsum.photos/seed/manalihtl/400/300",price:12000,rating:4.6,category:"couple",desc:"Mountain view"},{name:"Snow Valley",img:"https://picsum.photos/seed/snowmanali/400/300",price:6000,rating:4.3,category:"friends",desc:"Budget stay"}],kashmir:[{name:"Kashmir Palace",img:"https://picsum.photos/seed/kashmirhtl/400/300",price:20000,rating:4.9,category:"family",desc:"Houseboat"},{name:"Hotel Grand",img:"https://picsum.photos/seed/grandkashmir/400/300",price:10000,rating:4.4,category:"couple",desc:"Lake view"}],kerala:[{name:"Kerala Backwaters",img:"https://picsum.photos/seed/keralahtl/400/300",price:18000,rating:4.7,category:"couple",desc:"Houseboat"},{name:"Resort Green",img:"https://picsum.photos/seed/greenkerala/400/300",price:9000,rating:4.2,category:"family",desc:"Family resort"}],rajasthan:[{name:"Raj Palace",img:"https://picsum.photos/seed/rajhtl/400/300",price:16000,rating:4.8,category:"family",desc:"Heritage hotel"},{name:"Desert Camp",img:"https://picsum.photos/seed/desertraj/400/300",price:7000,rating:4.3,category:"friends",desc:"Camp stay"}],shimla:[{name:"Shimla Grand",img:"https://picsum.photos/seed/shimlahtl/400/300",price:14000,rating:4.6,category:"couple",desc:"Mall road"},{name:"Hill View",img:"https://picsum.photos/seed/hillshimla/400/300",price:8000,rating:4.1,category:"family",desc:"Mountain view"}],mumbai:[{name:"Taj Mumbai",img:"https://picsum.photos/seed/tajmum/400/300",price:25000,rating:4.9,category:"couple",desc:"Sea facing"},{name:"Hotel City",img:"https://picsum.photos/seed/citymum/400/300",price:5000,rating:4.0,category:"friends",desc:"Budget"}],delhi:[{name:"Delhi Imperial",img:"https://picsum.photos/seed/delhiimp/400/300",price:22000,rating:4.8,category:"family",desc:"Luxury"},{name:"Paharganj Hotel",img:"https://picsum.photos/seed/pahar/400/300",price:3000,rating:3.8,category:"friends",desc:"Cheap"}],agra:[{name:"Taj View Hotel",img:"https://picsum.photos/seed/tajagra/400/300",price:15000,rating:4.7,category:"couple",desc:"Taj view"},{name:"Agra Residency",img:"https://picsum.photos/seed/agrares/400/300",price:6000,rating:4.2,category:"family",desc:"Family"}],ladakh:[{name:"Ladakh Camp",img:"https://picsum.photos/seed/ladakhtl/400/300",price:12000,rating:4.5,category:"friends",desc:"Tent stay"},{name:"Hotel Himalaya",img:"https://picsum.photos/seed/himalaya/400/300",price:18000,rating:4.6,category:"family",desc:"Mountain"}],ooty:[{name:"Ooty Resort",img:"https://picsum.photos/seed/ootyhtl/400/300",price:13000,rating:4.4,category:"couple",desc:"Tea garden"},{name:"Hill Hotel",img:"https://picsum.photos/seed/hillooty/400/300",price:7000,rating:4.0,category:"family",desc:"Family"}],darjeeling:[{name:"Darjeeling Tea Resort",img:"https://picsum.photos/seed/darjhtl/400/300",price:14000,rating:4.5,category:"couple",desc:"Tea estate"},{name:"Hotel Mount",img:"https://picsum.photos/seed/mountdarj/400/300",price:8000,rating:4.1,category:"family",desc:"Kanchenjunga view"}]};
-function showToast(msg){let t=document.getElementById('toast');t.innerText=msg;t.style.display='block';setTimeout(()=>{t.style.display='none'},3000)}
-function showCelebration(){document.getElementById('celebration').style.display='flex';for(let i=0;i<15;i++){let b=document.createElement('div');b.className='balloon';b.style.background=`hsl(${Math.random()*360},100%,60%)`;b.style.left=Math.random()*100+'%';b.style.animationDelay=i*0.2+'s';document.getElementById('celebration').appendChild(b);}setTimeout(()=>{document.getElementById('celebration').style.display='none';document.getElementById('celebration').innerHTML='<div class="big-thank">🎉 THANK YOU! 🎉<br><span style="font-size:24px;color:white">Your Trip is Booked Successfully!</span></div>'},4000);}
-
-window.generatePassengerInputs=()=>{let count=document.getElementById('tickets').value;let div=document.getElementById('passengerInputs');div.style.display='block';div.innerHTML='';for(let i=1;i<=count;i++){div.innerHTML+=`<input id="passenger${i}" placeholder="Passenger ${i} Full Name" required>`}}
-function loadDestinations(){let h="",a="",army="";for(let k in destinations){let d=destinations[k];h+=`<div class="booking-card"><img src="${d.img}"><h4>${d.name}</h4><p>${d.tip}</p></div>`;a+=`<div class="booking-card"><img src="${d.img}"><h4>${d.name}</h4><div class="ai-suggestion"><h4>AI Suggestion</h4><p>Budget: Rs.${d.budget}</p><p>Days: ${d.days}</p><p>${d.tip}</p></div><iframe src="${d.map}" class="map-box" loading="lazy"></iframe></div>`;army+=`<div class="booking-card"><img src="${d.img}"><h4>${d.name} <span class="badge army-badge">FREE</span></h4><p>${d.tip}</p><input id="armyName${k}" placeholder="Enter Soldier Full Name" required><input id="armyId${k}" placeholder="Enter Army ID No" required><button class="btn-army" onclick="bookArmyTrip('${d.name}','${k}')">Book Free Ticket + PDF</button></div>`}document.getElementById('homeDestinations').innerHTML=h;document.getElementById('allDestinations').innerHTML=a;document.getElementById('armyDestinations').innerHTML=army}
-function showPage(p){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.getElementById(p).classList.add('active');if(p=='home'||p=='destinations'||p=='army')loadDestinations();if(p=='hotels')loadHotels();if(p=='mytrips')loadTrips();if(p=='admin')loadAdminPanel();if(p=='addtrip')generatePassengerInputs()}
-
-window.loadHotels=()=>{filterHotels(currentFilter)};
-window.filterHotels=(f)=>{currentFilter=f;document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));event.target.classList.add('active');let d=document.getElementById('hotelDestinationSelect').value;let h=hotelsData[d]||[];if(f!='all')h=h.filter(x=>x.category==f);let html="";h.forEach(x=>{html+=`<div class="booking-card"><img src="${x.img}"><h4>${x.name}</h4><span class="badge ${x.category}-badge">${x.category}</span><p>⭐${x.rating} | Rs.${x.price}</p><p>${x.desc}</p><button class="btn-book" onclick="showToast('Redirecting to Booking Site...');window.open('https://makemytrip.com')">Book</button></div>`});document.getElementById('hotelList').innerHTML=html};
-
-window.searchTransport=()=>{let from=document.getElementById('transFrom').value;let to=document.getElementById('transTo').value;let date=document.getElementById('transDate').value;let type=document.getElementById('transType').value;if(!from||!to||!date){alert("Fill all");return}showToast(`${type} Search Successful!`);let link=type=="bus"?"https://www.redbus.in/":type=="flight"?"https://www.makemytrip.com/flights/":type=="cab"?"https://www.olacabs.com/":"https://www.royalenfield.com/rentals";document.getElementById('transList').innerHTML=`<div class="booking-card"><h4>${type.toUpperCase()} from ${from} to ${to}</h4><p>Date: ${date}</p><button class="btn-book" onclick="window.open('${link}')">Book Now</button></div>`};
-
-window.bookArmyTrip=(dest,key)=>{let armyName=document.getElementById('armyName'+key).value;let armyId=document.getElementById('armyId'+key).value;if(!armyName ||!armyId){alert("Please enter Soldier Name and ID");return}showToast(`Free Ticket Booked! Generating PDF...`);let tripData={id:Date.now(),dest:dest+" - ARMY FREE",date:new Date().toISOString().split('T')[0],budget:0,tickets:1,img:destinations[dest.toLowerCase()].img,user:currentUser,passengers:[armyName],armyId:armyId,type:"ARMY"};db.ref('trips/'+currentUser.replace('.','_')).push(tripData).then(()=>{allTripsData.push(tripData);downloadPDF(tripData.id);showCelebration();showPage('mytrips')});};
-
-window.aiSuggest=()=>{let d=document.getElementById('destination').value.toLowerCase();let b=document.getElementById('aiSuggestionBox');if(destinations[d]){let x=destinations[d];b.innerHTML=`<div class="ai-suggestion"><h4>AI for ${x.name}</h4><p>Budget: Rs.${x.budget}</p><p>Days: ${x.days}</p><p>${x.tip}</p></div>`;document.getElementById('budget').value=x.budget}else{b.innerHTML=""}};
-window.createAccount=()=>{let email=document.getElementById('emailInput').value;let pass=document.getElementById('passInput').value;auth.createUserWithEmailAndPassword(email,pass).then(()=>{showToast("Account Created Successfully!")}).catch(e=>alert(e.message))}
-window.login=()=>{let email=document.getElementById('emailInput').value;let pass=document.getElementById('passInput').value;if(email=="admin@ai.com"&&pass=="123"){isAdmin=true;currentUser=email;document.getElementById("adminNavBtn").style.display="block";document.getElementById("loginBox").style.display="none";document.getElementById("mainBox").style.display="block";document.getElementById("welcome").innerText="Welcome Admin";showPage('home');return}auth
-.signInWithEmailAndPassword(email,pass).then(()=>{currentUser=email;document.getElementById("loginBox").style.display="none";document.getElementById("mainBox").style.display="block";document.getElementById("welcome").innerText="Welcome "+email.split('@')[0];showToast("Login Successful!");showPage('home')}).catch(e=>alert(e.message))};
-window.logout=()=>{isAdmin=false;document.getElementById("adminNavBtn").style.display="none";auth.signOut();document.getElementById("loginBox").style.display="block";document.getElementById("mainBox").style.display="none";showToast("Logout Successful!")};
-
-// *** CREATE ***
-window.saveTrip=()=>{let d=document.getElementById('destination').value,dt=document.getElementById('date').value,b=document.getElementById('budget').value,tc=document.getElementById('tickets').value;if(!d||!dt||!b){alert("Fill all fields");return}let passengers=[];for(let i=1;i<=tc;i++){let name=document.getElementById('passenger'+i).value;if(!name){alert(`Enter Passenger ${i} Name`);return}passengers.push(name);}let key=d.toLowerCase(),data=destinations[key]||{img:"https://picsum.photos/seed/default/800/500"};let tripData={id:Date.now(),dest:d,date:dt,budget:b,tickets:tc,img:data.img,user:currentUser,passengers:passengers,type:"NORMAL"};db.ref('trips/'+currentUser.replace('.','_')).push(tripData).then(()=>{showCelebration();showToast("Trip Saved!");showPage('mytrips')});};
-
-// *** READ ***
-function loadTrips(){db.ref('trips/'+currentUser.replace('.','_')).once('value').then(snapshot=>{let all=[];snapshot.forEach(child=>{all.push({key:child.key,...child.val()})});document.getElementById('trips').innerHTML="";allTripsData=all;if(all.length==0){document.getElementById('trips').innerHTML="<p>No trips</p>";return}all.forEach(t=>{let pList=t.passengers? t.passengers.join(', ') : 'N/A';let typeBadge = t.type=="ARMY"? `<span class="badge army-badge">ARMY FREE</span>` : '';document.getElementById('trips').innerHTML+=`<div class="booking-card"><img src="${t.img}"><h3>${t.dest} ${typeBadge}</h3><p><b>Passengers:</b> ${pList}</p><p>Date:${t.date}</p><p>Tickets:${t.tickets}</p><p>Budget:Rs.${t.budget}</p><div class="qr-box"><div id="qr${t.id}"></div></div><div style="display:flex;gap:10px"><button class="btn-edit" onclick="openEditModal('${t.key}','${currentUser}')">Edit</button><button class="btn-delete" onclick="deleteTrip('${t.key}','${currentUser}')">Delete</button></div><button class="btn-book" onclick="downloadPDF('${t.id}')">Download PDF</button></div>`;setTimeout(()=>{new QRCode(document.getElementById("qr"+t.id),{text:"PNR:PS"+t.id+" | "+t.dest+" | "+t.date+" | "+pList,width:120,height:120})},100)})})}
-
-// *** ADMIN READ ALL ***
-function loadAdminPanel(){db.ref('trips').once('value').then(snapshot=>{let html="";snapshot.forEach(userSnap=>{let user=userSnap.key;userSnap.forEach(tripSnap=>{let t={key:tripSnap.key,...tripSnap.val()};let pList=t.passengers? t.passengers.join(', ') : 'N/A';html+=`<div class="booking-card"><h4>User: ${user}</h4><h3>${t.dest} <span class="badge admin-badge">ADMIN VIEW</span></h3><p><b>Passengers:</b> ${pList}</p><p>Date:${t.date} | Budget:Rs.${t.budget}</p><div style="display:flex;gap:10px"><button class="btn-edit" onclick="openEditModal('${t.key}','${user}')">Edit</button><button class="btn-delete" onclick="deleteTrip('${t.key}','${user}')">Delete</button></div></div>`})});document.getElementById('adminTrips').innerHTML=html||"<p>No trips</p>"})}
-
-// *** UPDATE ***
-window.openEditModal=(key,user)=>{editTripId=key;editTripUser=user;let trip=allTripsData.find(x=>x.key==key)||{};document.getElementById('editDest').value=trip.dest;document.getElementById('editDate').value=trip.date;document.getElementById('editBudget').value=trip.budget;document.getElementById('editTickets').value=trip.tickets;let pDiv=document.getElementById('editPassengerInputs');pDiv.innerHTML="";if(trip.passengers){trip.passengers.forEach((p,i)=>{pDiv.innerHTML+=`<input id="editPassenger${i}" value="${p}" placeholder="Passenger ${i+1}">`})}document.getElementById('editModal').style.display='block';}
-window.closeEditModal=()=>{document.getElementById('editModal').style.display='none';}
-window.updateTrip=()=>{let d=document.getElementById('editDest').value;let dt=document.getElementById('editDate').value;let b=document.getElementById('editBudget').value;let tc=document.getElementById('editTickets').value;let passengers=[];for(let i=0;i<tc;i++){passengers.push(document.getElementById('editPassenger'+i).value)}db.ref(`trips/${editTripUser.replace('.','_')}/${editTripId}`).update({dest:d,date:dt,budget:b,tickets:tc,passengers:passengers}).then(()=>{showToast("Trip Updated!");closeEditModal();loadTrips();if(isAdmin)loadAdminPanel()})};
-
-// *** DELETE ***
-window.deleteTrip=(key,user)=>{if(confirm("Delete this trip?")){db.ref(`trips/${user.replace('.','_')}/${key}`).remove().then(()=>{showToast("Trip Deleted!");loadTrips();if(isAdmin)loadAdminPanel()})}};
-
-// *** PDF ***
-window.downloadPDF=(id)=>{let trip = allTripsData.find(t=>t.id==id);if(!trip){alert("Trip not found");return}const{jsPDF}=window.jspdf;const doc=new jsPDF();doc.addImage(logoBase64, "JPEG", 10, 8, 25, 25);doc.setFillColor(255,105,180);doc.rect(0,0,210,40,"F");doc.setTextColor(255,255,255);doc.setFontSize(18);doc.text("PS AI TRAVEL PLANNER", 50, 22);doc.setFontSize(16);doc.setTextColor(0,0,0);doc.text("E-TICKET", 105, 55, {align:"center"});doc.setDrawColor(255,105,180);doc.rect(15,65,180,140);doc.setFontSize(12);doc.text("PNR No: PS" + trip.id, 20, 75);doc.text("Destination: " + trip.dest, 20, 85);doc.text("Travel Date: " + trip.date, 20, 95);doc.text("No. of Tickets: " + trip.tickets, 20, 105);doc.text("Total Budget: Rs." + trip.budget, 20, 115);if(trip.type=="ARMY"){doc.text("Category: INDIAN ARMY - FREE", 20, 125);doc.text("Army ID: " + trip.armyId, 20, 135);}let y = trip.type=="ARMY"? 145 : 125;doc.setFont(undefined, 'bold');doc.text("PASSENGER DETAILS:", 20, y); y+=10;doc.setFont(undefined, 'normal');if(trip.passengers){trip.passengers.forEach((p,i)=>{doc.text(`${i+1}. ${p}`, 25, y);y+=10;});}let qrTemp = document.createElement('div');new QRCode(qrTemp, {text:"PNR:PS"+trip.id+" | "+trip.dest+" | "+trip.date+" | "+(trip.passengers?trip.passengers.join(', '):''), width:100, height:100});setTimeout(()=>{let qrCanvas = qrTemp.querySelector("canvas");if(qrCanvas){doc.addImage(qrCanvas.toDataURL(), "PNG", 145, 100, 40, 40);}doc.setFontSize(10);doc.text("Thank You & Happy Journey - JAI HIND", 105, 210, {align:"center"});let safeName = trip.dest.replace(/[^a-z0-9]/gi, '_') + "_PSAI_Ticket.pdf";doc.save(safeName);showToast("Original Ticket PDF Downloaded!");},200);};
-
-// *** ADMIN EXPORT ALL PDF ***
-window.exportAllPDF=()=>{const{jsPDF}=window.jspdf;const doc=new jsPDF();doc.setFontSize(18);doc.text("PS AI - All Trips Report",105,20,{align:"center"});let y=40;db.ref('trips').once('value').then(snapshot=>{snapshot.forEach(userSnap=>{snapshot.forEach(tripSnap=>{let t=tripSnap.val();doc.setFontSize(10);doc.text(`User:${userSnap.key} | ${t.dest} | ${t.date} | Rs.${t.budget}`, 20, y);y+=10;if(y>270){doc.addPage(); y=20;}})})});doc.save("All_Trips_Report.pdf")};
-
-</script>
   <script>
-(function(){if(!window.chatbase||window.chatbase("getState")!=="initialized"){window.chatbase=(...arguments)=>{if(!window.chatbase.q){window.chatbase.q=[]}window.chatbase.q.push(arguments)};window.chatbase=new Proxy(window.chatbase,{get(target,prop){if(prop==="q"){return target.q}return(...args)=>target(prop,...args)}})}const onLoad=function(){const script=document.createElement("script");script.src="https://www.chatbase.co/embed.min.js";script.id="ZdBqHeYbHY4yKYYfAFnG0";script.domain="www.chatbase.co";document.body.appendChild(script)};if(document.readyState==="complete"){onLoad()}else{window.addEventListener("load",onLoad)}})();
-</script>
+    /* -------------------------
+       FIREBASE CONFIG & INIT
+       ------------------------- */
+
+    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+    const firebaseConfig = {
+      apiKey: "AIzaSyBXLQxRyqXoHwUIJqJhAaJybyaRT1FPLL0",
+      authDomain: "ai-travel-planner-c2026.firebaseapp.com",
+      databaseURL: "https://ai-travel-planner-c2026-default-rtdb.firebaseio.com",
+      projectId: "ai-travel-planner-c2026",
+      storageBucket: "ai-travel-planner-c2026.firebasestorage.app",
+      messagingSenderId: "360976500854",
+      appId: "1:360976500854:web:c8a01ba17325e03177f757",
+      measurementId: "G-S40K0QT4ZF"
+    };
+
+    // Initialize Firebase (compat)
+    let firebaseAvailable = false;
+    try{
+      firebase.initializeApp(firebaseConfig);
+      window._fbAuth = firebase.auth();
+      window._fbDB = firebase.database();
+      firebaseAvailable = true;
+      console.log('Firebase initialized');
+    }catch(e){
+      console.warn('Firebase init failed or SDK not loaded', e);
+    }
+
+    /* -------------------------
+       AUTH, STORAGE AND APP SETUP
+       ------------------------- */
+
+    // Keys (local fallback)
+    const STORAGE_KEY = 'psai_bookings_v3';
+    const USERS_KEY = 'psai_users_v1';
+    const SESSION_KEY = 'psai_current_user';
+
+    // Attractive inline logo for PDFs
+    const logoDataURL = (function(){
+      const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='500' height='140' viewBox='0 0 500 140'>
+        <defs><linearGradient id='g' x1='0' x2='1'><stop offset='0' stop-color='#FF6FA3'/><stop offset='1' stop-color='#4CD3A6'/></linearGradient></defs>
+        <rect rx='20' width='500' height='140' fill='url(#g)'/>
+        <g transform='translate(24,28)'>
+          <path d='M30 70c18-28 80-48 140-20' stroke='white' stroke-width='6' fill='none' stroke-linecap='round'/>
+          <circle cx='190' cy='10' r='14' fill='white' opacity='0.95'/>
+        </g>
+        <text x='220' y='80' font-family='Poppins, sans-serif' font-size='34' fill='white' font-weight='700'>PS AI Travel</text>
+      </svg>`;
+      return 'data:image/svg+xml;base64,' + btoa(svg);
+    })();
+
+    // Simple Web Crypto SHA-256 hex (kept for local fallback users)
+    async function sha256Hex(str){
+      const enc = new TextEncoder().encode(str);
+      const hash = await crypto.subtle.digest('SHA-256', enc);
+      return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2,'0')).join('');
+    }
+
+    // Current user object in memory (normalized: { uid?, email, name, role })
+    let currentUser = null;
+
+    // Seed admin user if not present: try to create in Firebase (client-side) for demo; fallback to localStorage
+    (async function seedAdmin(){
+      // If firebase available, attempt to create Firebase Auth user admin@ai.com (demo seed).
+      if(firebaseAvailable){
+        try{
+          // Try to create user (if already exists, this will error)
+          const adminEmail = 'admin@ai.com';
+          const adminPwd = 'admin123';
+          await _fbAuth.createUserWithEmailAndPassword(adminEmail, adminPwd)
+            .then(async cred=>{
+              const u = cred.user;
+              // store profile in Realtime DB
+              await _fbDB.ref('users/' + u.uid).set({ email: adminEmail, name: 'Administrator', role: 'admin', createdAt: new Date().toISOString() });
+              console.log('Admin user created in Firebase Auth & DB');
+            })
+            .catch(async err=>{
+              if(err && err.code === 'auth/email-already-in-use'){
+                // ensure profile exists in DB: sign in and write profile if missing
+                try{
+                  const signed = await _fbAuth.signInWithEmailAndPassword(adminEmail, adminPwd);
+                  const u = signed.user;
+                  const snap = await _fbDB.ref('users/' + u.uid).once('value');
+                  if(!snap.exists()){
+                    await _fbDB.ref('users/' + u.uid).set({ email: adminEmail, name: 'Administrator', role: 'admin', createdAt: new Date().toISOString() });
+                  }
+                  await _fbAuth.signOut();
+                }catch(e2){
+                  // ignore (signup/signin may be disabled in Firebase console)
+                  console.warn('Could not sign in existing admin user; leaving as-is', e2);
+                }
+              } else {
+                console.warn('Admin create error', err);
+              }
+            });
+        }catch(e){
+          console.warn('Admin seeding via Firebase failed', e);
+        }
+      } else {
+        // fallback: previous localStorage seed
+        let users = JSON.parse(localStorage.getItem(USERS_KEY) || '[]');
+        if(!users.find(u => u.email === 'admin@ai.com')){
+          const hp = await sha256Hex('admin123');
+          users.push({ email: 'admin@ai.com', password: hp, name: 'Administrator', role: 'admin', createdAt: new Date().toISOString() });
+          localStorage.setItem(USERS_KEY, JSON.stringify(users));
+        }
+      }
+    })();
+
+    // Restore session: use Firebase auth state if available; else sessionStorage fallback
+    (function restoreSession(){
+      if(firebaseAvailable){
+        _fbAuth.onAuthStateChanged(async fbUser => {
+          if(fbUser){
+            // fetch profile from DB
+            try{
+              const snap = await _fbDB.ref('users/' + fbUser.uid).once('value');
+              const profile = snap.val() || { email: fbUser.email, name: fbUser.displayName || fbUser.email.split('@')[0], role: 'user' };
+              currentUser = { uid: fbUser.uid, email: profile.email || fbUser.email, name: profile.name || fbUser.email.split('@')[0], role: profile.role || 'user' };
+              // merge bookings from Firebase for this user (non-destructive)
+              await syncBookingsFromFirebase(currentUser);
+              updateAuthUI();
+            }catch(e){
+              console.warn('Failed to load profile', e);
+              currentUser = { email: fbUser.email, name: fbUser.email.split('@')[0], role: 'user' };
+              updateAuthUI();
+            }
+          } else {
+            // not signed in via Firebase: fallback to sessionStorage
+            const s = sessionStorage.getItem(SESSION_KEY);
+            if(s){
+              currentUser = JSON.parse(s);
+            } else {
+              currentUser = null;
+            }
+            updateAuthUI();
+          }
+        });
+      } else {
+        const s = sessionStorage.getItem(SESSION_KEY);
+        if(s){
+          currentUser = JSON.parse(s);
+          updateAuthUI();
+        } else {
+          updateAuthUI();
+        }
+      }
+    })();
+
+    // Update header auth area
+    function updateAuthUI(){
+      const area = document.getElementById('authArea');
+      if(currentUser && currentUser.email){
+        area.innerHTML = `<span class="welcome muted" style="margin-left:8px">Welcome, ${escapeHtml(currentUser.name || currentUser.email.split('@')[0])}</span>
+                          <button class="btn" style="margin-left:8px" onclick="logout()">Logout</button>`;
+        // autofill booking form
+        if(document.getElementById('name') && currentUser.name) document.getElementById('name').value = currentUser.name;
+        if(document.getElementById('email') && currentUser.email) document.getElementById('email').value = currentUser.email;
+      } else {
+        area.innerHTML = `<button class="btn btn-accent" onclick="showLogin()">Account</button>`;
+      }
+      updateRecentList();
+      updateAdminTable();
+    }
+
+    // Show login modal
+    function showLogin(){
+      document.getElementById('authModal').style.display='flex';
+      document.getElementById('authModal').setAttribute('aria-hidden','false');
+      document.getElementById('authTitle').innerText = 'Login';
+      document.getElementById('loginForm').style.display = 'block';
+      document.getElementById('signupForm').style.display = 'none';
+      document.getElementById('loginMsg').innerText = '';
+      document.getElementById('signupMsg').innerText = '';
+      // clear fields for clarity
+      document.getElementById('loginEmail').value = '';
+      document.getElementById('loginPassword').value = '';
+    }
+    function showSignup(){
+      document.getElementById('authModal').style.display='flex';
+      document.getElementById('authModal').setAttribute('aria-hidden','false');
+      document.getElementById('authTitle').innerText = 'Create Account';
+      document.getElementById('loginForm').style.display = 'none';
+      document.getElementById('signupForm').style.display = 'block';
+      document.getElementById('loginMsg').innerText = '';
+      document.getElementById('signupMsg').innerText = '';
+      // clear fields
+      document.getElementById('signupName').value = '';
+      document.getElementById('signupEmail').value = '';
+      document.getElementById('signupPassword').value = '';
+      document.getElementById('signupPassword2').value = '';
+    }
+    function hideAuthModal(){
+      document.getElementById('authModal').style.display='none';
+      document.getElementById('authModal').setAttribute('aria-hidden','true');
+    }
+
+    // Signup (uses Firebase if available)
+    async function signup(){
+      const name = document.getElementById('signupName').value.trim();
+      const email = document.getElementById('signupEmail').value.trim().toLowerCase();
+      const pwd = document.getElementById('signupPassword').value;
+      const pwd2 = document.getElementById('signupPassword2').value;
+      const msg = document.getElementById('signupMsg');
+      msg.style.color = 'red'; msg.innerText = '';
+
+      if(!name || !email || !pwd || !pwd2){ msg.innerText = 'Please fill all fields'; return; }
+      if(pwd !== pwd2){ msg.innerText = 'Passwords do not match'; return; }
+
+      if(firebaseAvailable){
+        try{
+          const cred = await _fbAuth.createUserWithEmailAndPassword(email, pwd);
+          const u = cred.user;
+          // save profile in DB
+          await _fbDB.ref('users/' + u.uid).set({ email, name, role:'user', createdAt: new Date().toISOString() });
+          msg.style.color = 'green'; msg.innerText = 'Account created. Logging in...';
+          // onAuthStateChanged will handle session and UI
+          setTimeout(hideAuthModal, 900);
+        }catch(err){
+          console.warn('Firebase signup error', err);
+          msg.innerText = err.message || 'Signup failed';
+        }
+      } else {
+        // fallback: localStorage users
+        let users = JSON.parse(localStorage.getItem(USERS_KEY) || '[]');
+        if(users.find(u => u.email === email)){ msg.innerText = 'Account with this email already exists'; return; }
+        const hp = await sha256Hex(pwd);
+        users.push({ email, password: hp, name, role:'user', createdAt: new Date().toISOString() });
+        localStorage.setItem(USERS_KEY, JSON.stringify(users));
+        msg.style.color = 'green'; msg.innerText = 'Account created. Logging in...';
+        await new Promise(r => setTimeout(r,800));
+        await loginWithCredentials(email, pwd);
+      }
+    }
+
+    // Login
+    async function login(){
+      const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+      const pwd = document.getElementById('loginPassword').value;
+      const msg = document.getElementById('loginMsg');
+      msg.style.color = 'red'; msg.innerText = '';
+      if(!email || !pwd){ msg.innerText = 'Fill email and password'; return; }
+      await loginWithCredentials(email, pwd);
+    }
+
+    // Login helper using Firebase or local hash
+    async function loginWithCredentials(email, pwd){
+      const msg = document.getElementById('loginMsg');
+      if(firebaseAvailable){
+        try{
+          await _fbAuth.signInWithEmailAndPassword(email, pwd);
+          // onAuthStateChanged will set currentUser and update UI
+          hideAuthModal();
+          msg.innerText = '';
+        }catch(err){
+          console.warn('Firebase login error', err);
+          msg.innerText = 'Invalid credentials or auth error';
+        }
+      } else {
+        // local fallback
+        const users = JSON.parse(localStorage.getItem(USERS_KEY) || '[]');
+        const hp = await sha256Hex(pwd);
+        const user = users.find(u => u.email === email && u.password === hp);
+        if(!user){ if(msg) msg.innerText = 'Invalid credentials'; else alert('Invalid credentials'); return; }
+        currentUser = { email: user.email, name: user.name || user.email.split('@')[0], role: user.role || 'user' };
+        sessionStorage.setItem(SESSION_KEY, JSON.stringify(currentUser));
+        updateAuthUI();
+        hideAuthModal();
+        // refresh UI (recent list shows user bookings)
+        updateRecentList();
+        updateAdminTable();
+      }
+    }
+
+    // Logout
+    function logout(){
+      if(firebaseAvailable){
+        _fbAuth.signOut().catch(e=>console.warn('Signout failed', e));
+      }
+      currentUser = null;
+      sessionStorage.removeItem(SESSION_KEY);
+      updateAuthUI();
+      updateRecentList();
+    }
+
+    /* -------------------------
+       SLIDES, SEARCH & BOOKINGS
+       ------------------------- */
+
+    // sample data & slides (20 slides)
+    const hotelSamples = [{name:'Taj Exotica',price:15000,stars:5,link:'https://www.booking.com'},{name:'Radisson Blu',price:8000,stars:4,link:'https://www.booking.com'},{name:'Zostel Hostel',price:1500,stars:3,link:'https://www.hostelworld.com'}];
+    const flightSamples = [{airline:'IndiGo',price:4500,duration:'1h 20m',link:'https://www.makemytrip.com/flights/'},{airline:'Air India',price:5200,duration:'1h 35m',link:'https://www.makemytrip.com/flights/'},{airline:'SpiceJet',price:4300,duration:'1h 25m',link:'https://www.skyscanner.co.in'}];
+    const busSamples = [{operator:'RedBus Express',price:450,duration:'8h',link:'https://www.redbus.in/'},{operator:'State Transit',price:350,duration:'10h',link:'https://www.redbus.in/'}];
+    const cabSamples = [{operator:'Ola Mini',price:450,duration:'30m',link:'https://www.olacabs.com'},{operator:'UberX',price:520,duration:'28m',link:'https://www.uber.com'}];
+
+    const slides = [
+      {id:1,title:'Welcome',subtitle:'PS AI Travel — Interactive Slides',city:'Goa',img:'https://picsum.photos/seed/slide1/1400/800'},
+      {id:2,title:'Top Destinations',subtitle:'12 Famous Destinations',city:'Manali',img:'https://picsum.photos/seed/slide2/1400/800'},
+      {id:3,title:'Map View: Goa',subtitle:'See Goa on the map',city:'Goa',img:'https://picsum.photos/seed/slide3/1400/800'},
+      {id:4,title:'Hotels Spotlight',subtitle:'Top hotels for different budgets',city:'Mumbai',img:'https://picsum.photos/seed/slide4/1400/800'},
+      {id:5,title:'Flights Finder',subtitle:'Search sample flights',city:'Delhi',img:'https://picsum.photos/seed/slide5/1400/800'},
+      {id:6,title:'Bus Routes',subtitle:'Intercity bus options',city:'Pune',img:'https://picsum.photos/seed/slide6/1400/800'},
+      {id:7,title:'Cab Services',subtitle:'Local cabs & bike rentals',city:'Bengaluru',img:'https://picsum.photos/seed/slide7/1400/800'},
+      {id:8,title:'Itinerary Builder',subtitle:'Auto-generate day plans',city:'Kerala',img:'https://picsum.photos/seed/slide8/1400/800'},
+      {id:9,title:'Food Guide',subtitle:'Local cuisine recommendations',city:'Kolkata',img:'https://picsum.photos/seed/slide9/1400/800'},
+      {id:10,title:'Weather Tips',subtitle:'Seasonal planning',city:'Shimla',img:'https://picsum.photos/seed/slide10/1400/800'},
+      {id:11,title:'Packing Checklist',subtitle:'What to pack',city:'Agra',img:'https://picsum.photos/seed/slide11/1400/800'},
+      {id:12,title:'Photography Spots',subtitle:'Best photo locations',city:'Ladakh',img:'https://picsum.photos/seed/slide12/1400/800'},
+      {id:13,title:'Group Deals',subtitle:'Discounts for groups',city:'Rajasthan',img:'https://picsum.photos/seed/slide13/1400/800'},
+      {id:14,title:'Special Offers',subtitle:'Army & Senior discounts',city:'Darjeeling',img:'https://picsum.photos/seed/slide14/1400/800'},
+      {id:15,title:'Safety & Health',subtitle:'Travel safety checklist',city:'Ooty',img:'https://picsum.photos/seed/slide15/1400/800'},
+      {id:16,title:'Budget Planner',subtitle:'Estimate your trip cost',city:'Goa',img:'https://picsum.photos/seed/slide16/1400/800'},
+      {id:17,title:'Travel Insurance',subtitle:'Why it matters',city:'Manali',img:'https://picsum.photos/seed/slide17/1400/800'},
+      {id:18,title:'Admin Overview',subtitle:'Bookings & exports',city:'Mumbai',img:'https://picsum.photos/seed/slide18/1400/800'},
+      {id:19,title:'Feedback',subtitle:'Collect user feedback',city:'Kerala',img:'https://picsum.photos/seed/slide19/1400/800'},
+      {id:20,title:'Thank You',subtitle:'Credits & Contact',city:'Pune',img:'https://picsum.photos/seed/slide20/1400/800'}
+    ];
+
+    // bookings saved locally (and mirrored to Firebase when available)
+    let bookings = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+
+    // render slides
+    const slidesContainer = document.getElementById('slidesContainer');
+    const slidesNav = document.getElementById('slidesNav');
+    const progBar = document.getElementById('progBar');
+
+    function renderSlides(){
+      slides.forEach(s=>{
+        const el = document.createElement('section');
+        el.className = 'slide';
+        el.id = 'slide-'+s.id;
+        el.innerHTML = `
+          <div class="slide-grid" role="region" aria-labelledby="title-${s.id}">
+            <div>
+              <div class="card">
+                <h2 id="title-${s.id}">${escapeHtml(s.title)}</h2>
+                <div class="muted-small">${escapeHtml(s.subtitle)}</div>
+                <img class="big-image" src="${s.img}" alt="${escapeHtml(s.title)}">
+                <p style="margin-top:10px">Explore <strong>${escapeHtml(s.city)}</strong>. Use the actions below to view maps, search hotels, flights, buses and make bookings.</p>
+                <div class="slide-actions" id="actions-${s.id}"></div>
+              </div>
+
+              <div style="margin-top:10px" class="card">
+                <strong>Output Panel</strong>
+                <div id="outputBody-${s.id}" class="muted-small" style="margin-top:8px">Click a button to generate output.</div>
+              </div>
+            </div>
+
+            <aside class="card">
+              <strong>Map</strong>
+              <iframe id="map-${s.id}" style="width:100%;height:260px;border-radius:8px;border:1px solid #eee;margin-top:8px" src="https://www.google.com/maps?q=${encodeURIComponent(s.city)}&output=embed"></iframe>
+              <div style="margin-top:10px" class="muted-small">Quick Links</div>
+              <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
+                <button class="btn" onclick="openExternal('https://www.google.com/travel')">Google Travel</button>
+                <button class="btn" onclick="openExternal('https://www.booking.com')">Hotels</button>
+                <button class="btn" onclick="openExternal('https://www.makemytrip.com')">Flights</button>
+                <button class="btn" onclick="openMapPrompt('${s.city}')">Jump Map</button>
+              </div>
+            </aside>
+          </div>
+        `;
+        slidesContainer.appendChild(el);
+
+        const thumb = document.createElement('div');
+        thumb.className = 'thumb';
+        thumb.innerText = `${s.id}. ${s.title}`;
+        thumb.onclick = ()=> gotoSlide(s.id);
+        slidesNav.appendChild(thumb);
+
+        addSlideButtons(s, el.querySelector('#actions-'+s.id));
+      });
+      gotoSlide(1);
+    }
+
+    // add slide buttons
+    function addSlideButtons(s, container){
+      container.innerHTML = '';
+
+      const outId = 'outputBody-'+s.id;
+
+      // AI Suggest
+      const aiBtn = make('button','btn btn-primary','AI Suggest');
+      aiBtn.onclick = ()=> { document.getElementById(outId).innerHTML = `<strong>AI Suggestion:</strong><br>${aiSuggest(s)}`; };
+      container.appendChild(aiBtn);
+
+      // Random
+      const randBtn = make('button','btn','Randomize');
+      randBtn.onclick = ()=> { document.getElementById(outId).innerHTML = `<pre style="white-space:pre-wrap">${randomOutput(s)}</pre>`; };
+      container.appendChild(randBtn);
+
+      // Find Hotels
+      const hBtn = make('button','btn btn-accent','Find Hotels');
+      hBtn.onclick = ()=> displayHotels(s);
+      container.appendChild(hBtn);
+
+      // Search Flights
+      const fBtn = make('button','btn','Search Flights');
+      fBtn.onclick = ()=> displayFlights(s);
+      container.appendChild(fBtn);
+
+      // Find Buses
+      const bBtn = make('button','btn','Find Buses');
+      bBtn.onclick = ()=> displayBuses(s);
+      container.appendChild(bBtn);
+
+      // Find Cabs
+      const cBtn = make('button','btn','Find Cabs');
+      cBtn.onclick = ()=> displayCabs(s);
+      container.appendChild(cBtn);
+
+      // Itinerary
+      const itBtn = make('button','btn','Generate Itinerary');
+      itBtn.onclick = ()=> { document.getElementById(outId).innerHTML = formatItinerary(generateItinerary(s)); };
+      container.appendChild(itBtn);
+
+      // Book quick (opens booking panel with prefilled city)
+      const bookBtn = make('button','btn btn-accent','Quick Book');
+      bookBtn.onclick = ()=> {
+        if(!currentUser){ showLogin(); alert('Please login/create account to book'); return; }
+        openBookingPanelPrefill(s.city);
+      };
+      container.appendChild(bookBtn);
+
+      // Claim Offer (slide 14 special offer)
+      if(s.id === 14){
+        const offerBtn = make('button','btn btn-accent','Claim Special Offer');
+        offerBtn.onclick = ()=> {
+          if(!currentUser){ showLogin(); alert('Please login to claim offer'); return; }
+          claimSpecialOffer(s);
+        };
+        container.appendChild(offerBtn);
+      }
+    }
+
+    // helpers
+    function make(tag, cls, txt){ const e = document.createElement(tag); e.className = cls; if(txt) e.innerText = txt; return e; }
+    function aiSuggest(slide){ const tips = [`Best time to visit ${slide.city}: Nov-Feb.`,`Approx budget for 3 days in ${slide.city}: ₹${(Math.random()*22000+4000).toFixed(0)}`,`Top attraction: ${['Old Fort','Sunset Beach','Hill View','Tea Garden'][rand(0,3)]}`]; return tips[rand(0,tips.length-1)]; }
+    function randomOutput(slide){ const outs = [`Local tip: haggle at the market for souvenirs.`,`Hidden gem: small cafe near the viewpoint.`,`Money-saving tip: use local trains for short hauls.`]; return outs[rand(0,outs.length-1)]; }
+    function rand(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
+
+    function displayHotels(slide){
+      const city = slide.city;
+      const out = document.getElementById('outputBody-'+slide.id);
+      let html = `<strong>Hotels near ${escapeHtml(city)}</strong><div style="margin-top:8px">`;
+      hotelSamples.forEach(h => {
+        html += `<div style="margin-bottom:8px;padding:8px;border-radius:8px;background:#fff"><strong>${h.name}</strong> • ₹${h.price} • ${h.stars}★<div style="margin-top:6px"><button class="btn" onclick="openExternal('${h.link}')">View</button><button class="btn btn-accent" onclick="saveBookingFromSlide('hotel','${h.name}','${h.price}','${city}')">Book</button></div></div>`;
+      });
+      html += `</div>`;
+      out.innerHTML = html;
+    }
+
+    function displayFlights(slide){
+      const out = document.getElementById('outputBody-'+slide.id);
+      let html = `<strong>Flights to ${escapeHtml(slide.city)}</strong><div style="margin-top:8px">`;
+      flightSamples.forEach(f => {
+        html += `<div style="margin-bottom:8px;padding:8px;border-radius:8px;background:#f0fff4"><strong>${f.airline}</strong> • ₹${f.price} • ${f.duration} <div style="margin-top:6px"><button class="btn" onclick="openExternal('${f.link}')">View</button><button class="btn btn-accent" onclick="saveBookingFromSlide('flight','${f.airline}','${f.price}','${slide.city}')">Book</button></div></div>`;
+      });
+      html += `</div>`;
+      out.innerHTML = html;
+    }
+
+    function displayBuses(slide){
+      const out = document.getElementById('outputBody-'+slide.id);
+      let html = `<strong>Buses to ${escapeHtml(slide.city)}</strong><div style="margin-top:8px">`;
+      busSamples.forEach(b => {
+        html += `<div style="margin-bottom:8px;padding:8px;border-radius:8px;background:#fff8f0"><strong>${b.operator}</strong> • ₹${b.price} • ${b.duration} <div style="margin-top:6px"><button class="btn" onclick="openExternal('${b.link}')">Book</button><button class="btn btn-accent" onclick="saveBookingFromSlide('bus','${b.operator}','${b.price}','${slide.city}')">Book</button></div></div>`;
+      });
+      html += `</div>`;
+      out.innerHTML = html;
+    }
+
+    function displayCabs(slide){
+      const out = document.getElementById('outputBody-'+slide.id);
+      let html = `<strong>Cabs in ${escapeHtml(slide.city)}</strong><div style="margin-top:8px">`;
+      cabSamples.forEach(c => {
+        html += `<div style="margin-bottom:8px;padding:8px;border-radius:8px;background:#f2f9ff"><strong>${c.operator}</strong> • ₹${c.price} • ${c.duration} <div style="margin-top:6px"><button class="btn" onclick="openExternal('${c.link}')">App</button><button class="btn btn-accent" onclick="saveBookingFromSlide('cab','${c.operator}','${c.price}','${slide.city}')">Book</button></div></div>`;
+      });
+      html += `</div>`;
+      out.innerHTML = html;
+    }
+
+    // booking from slide (quick save) - requires login
+    function saveBookingFromSlide(type, name, price, dest){
+      if(!currentUser){ showLogin(); alert('Please login to book'); return; }
+      const booking = { id: Date.now(), user: currentUser.email, name, type, from: dest, to: '', date: new Date().toISOString().split('T')[0], price: parseInt(price||0,10), createdAt: new Date().toISOString() };
+      const arr = loadBookings(); arr.push(booking); saveBookings(arr);
+      createTicketPDF(booking);
+      alert('Booking saved & ticket downloaded.');
+    }
+
+    // itinerary generator
+    function generateItinerary(s){
+      const days = rand(2,6);
+      const daysArr = [];
+      for(let d=1; d<=days; d++){
+        daysArr.push({day:d, activities:[`Morning: Visit attraction ${rand(1,6)}`, `Lunch: Local cuisine`, `Afternoon: Walk/Market`, `Evening: Sunset Spot`]} );
+      }
+      return {title:s.title, city:s.city, days:daysArr};
+    }
+    function formatItinerary(it){
+      let html = `<strong>Itinerary for ${escapeHtml(it.city)}</strong><div style="margin-top:8px">`;
+      it.days.forEach(d=>{ html += `<div style="margin-bottom:8px;padding:8px;border-radius:8px;background:#fffef6"><strong>Day ${d.day}</strong><ul>${d.activities.map(a=>`<li>${escapeHtml(a)}</li>`).join('')}</ul></div>`; });
+      html += `</div>`; return html;
+    }
+
+    // claim special offer (requires login)
+    function claimSpecialOffer(s){
+      if(!confirm('Claim Special Free Offer? Valid ID required at check-in.')) return;
+      const booking = { id: Date.now(), user: currentUser.email, name: 'Army Free', type: 'offer', from: s.city, to: '', date: new Date().toISOString().split('T')[0], price: 0, createdAt: new Date().toISOString() };
+      const arr = loadBookings(); arr.push(booking); saveBookings(arr);
+      createTicketPDF(booking);
+      document.getElementById('outputBody-'+s.id).innerHTML = `<strong>Offer Claimed!</strong><div class="muted-small">A free booking has been added to your bookings.</div>`;
+    }
+
+    // BOOKING PANEL FOR PREFILL (requires login)
+    function openBookingPanel(){ if(!currentUser){ showLogin(); return; } document.getElementById('bookingPanel').style.display='block'; renderBookingPanelBody(); }
+    function openBookingPanelPrefill(city){ if(!currentUser){ showLogin(); return; } openBookingPanel(); renderBookingPanelBody(city); }
+    function renderBookingPanelBody(prefillCity=''){
+      const body = document.getElementById('bookingPanelBody');
+      body.innerHTML = `
+        <label style="font-weight:600">Passenger Name</label><input id="bp_name" placeholder="Name" value="${escapeAttr(currentUser ? (currentUser.name || '') : '')}">
+        <label style="font-weight:600">Email</label><input id="bp_email" type="email" value="${escapeAttr(currentUser ? currentUser.email : '')}">
+        <label style="font-weight:600">Phone</label><input id="bp_phone" value="">
+        <label style="font-weight:600">Type</label>
+        <select id="bp_type"><option value="flight">Flight</option><option value="hotel">Hotel</option><option value="bus">Bus</option><option value="cab">Cab</option></select>
+        <label style="font-weight:600">From / Hotel</label><input id="bp_from" value="${escapeAttr(prefillCity || '')}">
+        <label style="font-weight:600">To (if travel)</label><input id="bp_to" value="">
+        <label style="font-weight:600">Date</label><input id="bp_date" type="date" value="">
+        <label style="font-weight:600">Price (₹)</label><input id="bp_price" type="number" value="">
+        <div style="margin-top:8px"><button class="btn btn-accent" onclick="submitBookingFromPanel()">Save & Generate Ticket</button></div>
+      `;
+    }
+    function submitBookingFromPanel(){
+      const name = document.getElementById('bp_name').value.trim();
+      const email = document.getElementById('bp_email').value.trim();
+      const phone = document.getElementById('bp_phone').value.trim();
+      const type = document.getElementById('bp_type').value;
+      const from = document.getElementById('bp_from').value.trim();
+      const to = document.getElementById('bp_to').value.trim();
+      const date = document.getElementById('bp_date').value;
+      const price = parseInt(document.getElementById('bp_price').value || 0,10);
+      if(!name || !email || !date){ alert('Fill required fields'); return; }
+      const booking = { id: Date.now(), user: currentUser.email, name, email, phone, type, from, to, date, price, createdAt: new Date().toISOString() };
+      const arr = loadBookings(); arr.push(booking); saveBookings(arr);
+      createTicketPDF(booking);
+      alert('Booking saved & ticket generated.');
+      document.getElementById('bookingPanel').style.display='none';
+    }
+
+    /* -------------------------
+       BOOKINGS: storage & PDF
+       ------------------------- */
+
+    function loadBookings(){
+      // synchronous local read (keeps original behavior)
+      return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    }
+
+    function saveBookings(arr){
+      // save locally
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
+      bookings = arr;
+      updateRecentList();
+      updateAdminTable();
+      // mirror to Firebase for persistence if available and user present
+      if(firebaseAvailable && currentUser && currentUser.email){
+        try{
+          arr.forEach(b=>{
+            // write or overwrite booking by id
+            const dbPath = 'bookings/' + b.id;
+            const data = Object.assign({}, b, { syncedAt: new Date().toISOString(), syncedBy: currentUser.uid || currentUser.email });
+            _fbDB.ref(dbPath).set(data).catch(e=>console.warn('Failed to mirror booking', e));
+          });
+        }catch(e){
+          console.warn('Booking mirror failed', e);
+        }
+      }
+    }
+
+    function updateRecentList(){
+      // show user's recent bookings if logged in, else show global recent
+      let recent = loadBookings().slice().reverse();
+      if(currentUser) recent = recent.filter(b => b.user === currentUser.email);
+      recent = recent.slice(0,5);
+      const el = document.getElementById('recentList');
+      if(recent.length===0){ el.innerHTML = 'No bookings yet.'; return; }
+      el.innerHTML = recent.map(b=>`<div style="margin-bottom:8px"><strong>${escapeHtml(b.name)}</strong> • ${escapeHtml(b.type)} • ₹${b.price} • ${escapeHtml(b.date)} <div style="margin-top:6px"><button class="btn" onclick="createTicketPDFById(${b.id})">PDF</button></div></div>`).join('');
+    }
+
+    // Create ticket PDF (with logo + QR)
+    async function createTicketPDF(booking){
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({unit:'pt', format:'a4'});
+      doc.setFillColor(255, 245, 250);
+      doc.rect(0,0,doc.internal.pageSize.getWidth(),120,'F');
+      try{ doc.addImage(logoDataURL,'PNG',30,18,160,56); }catch(e){}
+      doc.setFontSize(18); doc.setTextColor(30); doc.text('E-TICKET / Booking Confirmation', 210, 48);
+
+      // details box
+      doc.setDrawColor(240); doc.setFillColor(255); doc.rect(30,140,540,260,'FD');
+      doc.setFontSize(12);
+      let left = 50; let y = 168;
+      doc.text(`PNR No: PSAI${booking.id}`, left, y); y+=18;
+      doc.text(`Passenger: ${booking.name}`, left, y); y+=18;
+      doc.text(`Email: ${booking.email || ''}`, left, y); y+=18;
+      doc.text(`Phone: ${booking.phone || ''}`, left, y); y+=18;
+      doc.text(`Type: ${capitalize(booking.type)}`, left, y); y+=18;
+      if(booking.type !== 'hotel') { doc.text(`Route: ${booking.from || ''} → ${booking.to || ''}`, left, y); y+=18; }
+      else { doc.text(`Hotel / City: ${booking.from || booking.to || ''}`, left, y); y+=18; }
+      doc.text(`Date: ${booking.date}`, left, y); y+=18;
+      doc.text(`Price: ₹${booking.price || 0}`, left, y);
+
+      // QR
+      const tmp = document.createElement('div'); tmp.style.position='fixed'; tmp.style.left='-9999px'; document.body.appendChild(tmp);
+      new QRCode(tmp, { text: `PNR:PSAI${booking.id}|${booking.name}|${booking.date}`, width:120, height:120 });
+      await sleep(220);
+      const canvas = tmp.querySelector('canvas');
+      if(canvas){
+        try{ doc.addImage(canvas.toDataURL('image/png'),'PNG',420,160,120,120); }catch(e){}
+      }
+      tmp.remove();
+
+      doc.setFontSize(10); doc.setTextColor(100);
+      doc.text('This is a system-generated ticket by PS AI Travel. Carry ID at travel. Contact support for changes.', 40, 440);
+
+      const filename = `${(booking.type||'BOOKING').toUpperCase()}_PSAI_${booking.id}.pdf`;
+      doc.save(filename);
+    }
+
+    async function createTicketPDFById(id){
+      const arr = loadBookings();
+      const b = arr.find(x=>x.id === id);
+      if(b) await createTicketPDF(b);
+    }
+
+    /* -------------------------
+       ADMIN PANEL & EXPORT
+       ------------------------- */
+
+    function openAdmin(){
+      if(!currentUser){ showLogin(); return; }
+      if(currentUser.role !== 'admin'){ alert('Admin area restricted. Login with an admin account.'); return; }
+      document.getElementById('adminPanel').style.display='block';
+      updateAdminTable();
+    }
+
+    function updateAdminTable(){
+      const arr = loadBookings().slice().reverse();
+      const body = document.getElementById('adminTableBody');
+      if(!body) return;
+      if(arr.length===0){ body.innerHTML = '<tr><td colspan="8">No bookings</td></tr>'; return; }
+      body.innerHTML = arr.map((b,i)=>`
+        <tr>
+          <td>${i+1}</td>
+          <td>${escapeHtml(b.user || '—')}</td>
+          <td>${escapeHtml(b.name)}</td>
+          <td>${escapeHtml(capitalize(b.type))}</td>
+          <td>${escapeHtml(b.type === 'hotel' ? (b.from || b.to) : (b.from + ' → ' + b.to))}</td>
+          <td>₹${b.price || 0}</td>
+          <td>${b.date}</td>
+          <td>
+            <button class="btn" onclick="createTicketPDFById(${b.id})">PDF</button>
+            <button class="btn" onclick="deleteBooking(${b.id})">Delete</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function deleteBooking(id){
+      if(!confirm('Delete booking?')) return;
+      let arr = loadBookings();
+      arr = arr.filter(b=>b.id !== id);
+      saveBookings(arr);
+      // remove from firebase too
+      if(firebaseAvailable){
+        _fbDB.ref('bookings/' + id).remove().catch(e=>console.warn('Failed to remove booking from firebase', e));
+      }
+    }
+
+    function exportAllCSV(){
+      const arr = loadBookings();
+      if(arr.length===0){ alert('No bookings'); return; }
+      const keys = ['id','user','name','email','phone','type','from','to','date','price','createdAt'];
+      const csv = [keys.join(',')].concat(arr.map(r => keys.map(k=> `"${String(r[k]||'').replace(/"/g,'""')}"`).join(',')).join('\n'));
+      const blob = new Blob([csv.join('\n')], { type:'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = 'psai_bookings.csv'; a.click(); URL.revokeObjectURL(url);
+    }
+
+    /* -------------------------
+       FIREBASE SYNC HELPERS
+       ------------------------- */
+
+    async function syncBookingsFromFirebase(profile){
+      if(!firebaseAvailable || !profile) return;
+      try{
+        // fetch bookings having user === profile.email
+        const q = _fbDB.ref('bookings').orderByChild('user').equalTo(profile.email);
+        const snap = await q.once('value');
+        const fbBookings = snap.val() || {};
+        const fbArr = Object.keys(fbBookings).map(k => fbBookings[k]);
+        // merge into local storage without duplicating by id
+        const local = loadBookings();
+        const ids = new Set(local.map(l=>String(l.id)));
+        let merged = local.slice();
+        fbArr.forEach(b=>{
+          if(!ids.has(String(b.id))){
+            merged.push(b);
+          }
+        });
+        if(merged.length !== local.length){
+          saveBookings(merged); // save locally and mirror back to firebase (mirror is ok)
+        }
+      }catch(e){
+        console.warn('Sync bookings error', e);
+      }
+    }
+
+    /* -------------------------
+       HELPERS, NAV & UI INIT
+       ------------------------- */
+
+    function escapeHtml(s){ return String(s || '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]) ); }
+    function escapeAttr(s){ return (s||'').replace(/"/g,'&quot;'); }
+    function capitalize(s){ return s && s[0].toUpperCase()+s.slice(1) || ''; }
+    function sleep(ms){ return new Promise(r=>setTimeout(r, ms)); }
+
+    function openExternal(url){ window.open(url,'_blank'); }
+    function openMapPrompt(defaultCity){ const q = prompt('Open map for city:', defaultCity || 'Goa'); if(q) window.open(`https://www.google.com/maps?q=${encodeURIComponent(q)}`,'_blank'); }
+    function openMapsSearch(){ const q = prompt('Open Google Maps for city (e.g., Goa):', 'Goa'); if(q) window.open(`https://www.google.com/maps?q=${encodeURIComponent(q)}`,'_blank'); }
+
+    // slide navigation
+    let current = 1;
+    function gotoSlide(n){
+      if(n < 1) n = 1;
+      if(n > slides.length) n = slides.length;
+      current = n;
+      document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
+      const el = document.getElementById('slide-'+n);
+      if(el) el.classList.add('active');
+      document.getElementById('progBar').style.width = Math.round((current/slides.length)*100) + '%';
+    }
+    function nextSlide(){ gotoSlide(current+1); }
+    function prevSlide(){ gotoSlide(current-1); }
+    function randomSlide(){ gotoSlide(rand(1, slides.length)); }
+
+    // quick booking functions
+    function generateBooking(){
+      if(!currentUser){ showLogin(); alert('Please login to book'); return; }
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const type = document.getElementById('type').value;
+      const passengers = document.getElementById('passengers').value;
+      const from = document.getElementById('from').value.trim();
+      const to = document.getElementById('to').value.trim();
+      const date = document.getElementById('date').value;
+      const price = parseInt(document.getElementById('price').value || 0, 10);
+      if(!name || !email || !date || (type !== 'hotel' && (!from || !to))){ alert('Please fill required fields.'); return; }
+      const booking = { id: Date.now(), user: currentUser.email, name, email, phone, type, passengers, from, to, date, price, createdAt: new Date().toISOString() };
+      const arr = loadBookings(); arr.push(booking); saveBookings(arr);
+      createTicketPDF(booking);
+      document.getElementById('bookMsg').innerText = 'Booking saved & ticket downloaded!';
+      setTimeout(()=> document.getElementById('bookMsg').innerText = '', 5000);
+      clearForm();
+    }
+
+    function clearForm(){ ['name','email','phone','from','to','date','price'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; }); const p = document.getElementById('passengers'); if(p) p.value='1'; const t = document.getElementById('type'); if(t) t.value='flight'; }
+
+    function autoFillSample(){
+      if(!currentUser){ showLogin(); return; }
+      document.getElementById('name').value = currentUser.name || '';
+      document.getElementById('email').value = currentUser.email || '';
+      document.getElementById('phone').value = '+91 9000000000';
+      document.getElementById('type').value = 'flight';
+      document.getElementById('from').value = 'Pune (PNQ)';
+      document.getElementById('to').value = 'Goa (GOI)';
+      document.getElementById('date').value = new Date(Date.now()+7*24*3600*1000).toISOString().split('T')[0];
+      document.getElementById('price').value = 2599;
+    }
+
+    // On load
+    document.addEventListener('DOMContentLoaded', ()=>{
+      renderSlides();
+      updateRecentList();
+      updateAdminTable();
+      document.addEventListener('keydown', (e)=>{ if(e.key === 'ArrowRight') nextSlide(); if(e.key === 'ArrowLeft') prevSlide(); });
+      // seed sample user booking if none
+      if(loadBookings().length === 0){
+        const sample = { id: Date.now()-1000, user: 'pooja.salekar@example.com', name:'Pooja Salekar', email:'pooja.salekar@example.com', phone:'+919000000000', type:'flight', passengers:1, from:'Pune', to:'Mumbai', date:new Date(Date.now()+5*24*3600*1000).toISOString().split('T')[0], price:1200, createdAt:new Date().toISOString() };
+        saveBookings([sample]);
+      }
+      updateAuthUI();
+    });
+  </script>
 </body>
 </html>
