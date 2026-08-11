@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>PS AI Travel — 20+ Slide App with Auth, Booking & Admin</title>
 
+  <!-- CONTENT SECURITY POLICY (kept permissive for current inline scripts; tighten when moving scripts to external files) -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data:; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https:; script-src 'self' 'unsafe-inline' https:;">
+
   <!-- Libraries -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -68,6 +71,10 @@
     .small-link{color:var(--accent3);font-weight:600;text-decoration:none}
     #authArea .welcome{display:inline-flex;gap:8px;align-items:center}
     #authArea .btn{min-width:110px}
+
+    /* profile image styles */
+    #profilePhoto{width:120px;height:120px;border-radius:8px;object-fit:cover;border:1px solid #eee;display:block;margin-bottom:8px}
+    .profile-actions{display:flex;gap:8px;align-items:center;margin-top:8px}
   </style>
 </head>
 <body>
@@ -120,7 +127,7 @@
 
           <div style="display:flex;gap:8px">
             <div style="flex:1"><label>Date</label><input id="date" type="date"></div>
-            <div style="flex:1"><label>Price (₹)</label><input id="price" type="number" placeholder="e.g. 4500"></div>
+            <div style="flex:1"><label>Price (₹)</label><input id="price" type="number" placeholder="e.g. 4500" min="0"></div>
           </div>
 
           <div style="margin-top:10px;display:flex;gap:8px">
@@ -155,18 +162,33 @@
     <div style="margin-top:16px" class="card">
       <h3>About Project & Credits</h3>
       <div class="about-grid" style="margin-top:8px">
-        <div>
-          <h4>Project Developer</h4>
-          <ul class="about-list">
-            <li><strong>Name:</strong> pooja Nandkumar Salekar</li>
-            <li><strong>College:</strong> K.B.P. Polytechnic, Satara.</li>
-            <li><strong>Course:</strong> Computer engineering</li>
-            <li><strong>Year:</strong> tyco</li>
-            <li><strong>Live URL (Home):</strong> <a id="liveDemoLink" class="small-link" href="https://share.google/c8FBdAjZU0lVdtiKP" target="_blank">https://share.google/c8FBdAjZU0lVdtiKP</a></li>
-            <li><strong>LinkedIn:</strong> <a id="linkedinLink" class="small-link" href="https://www.linkedin.com/in/pooja-salekar-518a8b415?utm_source=share_via&utm_content=profile&utm_medium=member_android" target="_blank">https://www.linkedin.com/in/pooja-salekar-518a8b415?utm_source=share_via&utm_content=profile&utm_medium=member_android</a></li>
-            <li><strong>GitHub:</strong> <a id="githubLink" class="small-link" href="https://github.com/psalekar230-coder" target="_blank">https://github.com/psalekar230-coder</a></li>
-          </ul>
+        <div id="devProfileContainer">
+          <!-- Developer profile filled dynamically by JS -->
+          <div id="devProfile" style="display:flex;gap:12px;align-items:flex-start">
+            <div style="flex:0 0 140px">
+              <img id="profilePhoto" src="images/profile.jpg" alt="Developer photo" onerror="this.style.display='none'">
+              <div class="profile-actions">
+                <button class="btn" onclick="showProfileModal()">Edit Profile</button>
+                <button class="btn" onclick="deleteProfile()" title="Delete profile photo/data">Delete</button>
+              </div>
+            </div>
+            <div style="flex:1">
+              <div id="devInfoHtml">
+                <h4 id="devName">pooja Nandkumar Salekar</h4>
+                <ul class="about-list" id="devListStatic">
+                  <li><strong>College:</strong> K.B.P. Polytechnic, Satara.</li>
+                  <li><strong>Course:</strong> Computer engineering</li>
+                  <li><strong>Year:</strong> tyco</li>
+                  <li><strong>Live URL (Home):</strong> <a id="liveDemoLink" class="small-link" href="https://share.google/c8FBdAjZU0lVdtiKP" target="_blank" rel="noopener noreferrer">https://share.google/c8FBdAjZU0lVdtiKP</a></li>
+                  <li><strong>LinkedIn:</strong> <a id="linkedinLink" class="small-link" href="https://www.linkedin.com/in/pooja-salekar-518a8b415?utm_source=share_via&utm_content=profile&utm_medium=member_android" target="_blank" rel="noopener noreferrer">LinkedIn</a></li>
+                  <li><strong>GitHub:</strong> <a id="githubLink" class="small-link" href="https://github.com/psalekar230-coder" target="_blank" rel="noopener noreferrer">https://github.com/psalekar230-coder</a></li>
+                </ul>
+                <div class="muted-small" style="margin-top:8px">Tip: To use the supplied photo, save the attached image as images/profile.jpg or upload with Edit Profile.</div>
+              </div>
+            </div>
+          </div>
         </div>
+
         <div>
           <h4>Internship & Mentors</h4>
           <ul class="about-list">
@@ -217,7 +239,7 @@
     <div class="card">
       <div style="display:flex;justify-content:space-between;align-items:center">
         <strong>Booking Panel</strong>
-        <button class="btn" onclick="document.getElementById('bookingPanel').style.display='none'">Close</button>
+        <button class="btn" onclick="closeBookingPanel()">Close</button>
       </div>
       <div style="margin-top:8px" id="bookingPanelBody"></div>
     </div>
@@ -249,6 +271,28 @@
           <thead><tr><th>#</th><th>User</th><th>Name</th><th>Type</th><th>Route / Hotel</th><th>Price</th><th>Date</th><th>Actions</th></tr></thead>
           <tbody id="adminTableBody"></tbody>
         </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Profile Modal -->
+  <div id="profileModal" style="display:none" class="modal-backdrop" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="profileTitle">
+      <h3 id="profileTitle">Edit Profile</h3>
+      <div>
+        <label>Full Name</label><input id="profileName" placeholder="Full name">
+        <label>College</label><input id="profileCollege" placeholder="College">
+        <label>Course</label><input id="profileCourse" placeholder="Course">
+        <label>Year</label><input id="profileYear" placeholder="Year">
+        <label>Home URL</label><input id="profileHome" placeholder="https://example.com">
+        <label>LinkedIn</label><input id="profileLinkedIn" placeholder="https://linkedin.com/in/...">
+        <label>GitHub</label><input id="profileGithub" placeholder="https://github.com/...">
+        <label>Photo (jpg/png)</label><input id="profilePhotoInput" type="file" accept="image/*">
+        <div style="margin-top:10px;display:flex;gap:8px">
+          <button class="btn btn-primary" onclick="saveProfile()">Save</button>
+          <button class="btn" onclick="hideProfileModal()">Cancel</button>
+        </div>
+        <div id="profileMsg" style="margin-top:8px;color:green"></div>
       </div>
     </div>
   </div>
@@ -327,6 +371,7 @@
     const STORAGE_KEY = 'psai_bookings_v3';
     const USERS_KEY = 'psai_users_v1';
     const SESSION_KEY = 'psai_current_user';
+    const PROFILE_KEY = 'psai_profile_v1';
 
     // Attractive inline logo for PDFs
     const logoDataURL = (function(){
@@ -351,6 +396,9 @@
 
     // Current user object in memory (normalized: { uid?, email, name, role })
     let currentUser = null;
+
+    // Current editing booking id (used for booking panel edits)
+    let editingBookingId = null;
 
     // Seed admin user if not present: try to create in Firebase (client-side) for demo; fallback to localStorage
     (async function seedAdmin(){
@@ -736,7 +784,7 @@
       const out = document.getElementById('outputBody-'+slide.id);
       let html = `<strong>Hotels near ${escapeHtml(city)}</strong><div style="margin-top:8px">`;
       hotelSamples.forEach(h => {
-        html += `<div style="margin-bottom:8px;padding:8px;border-radius:8px;background:#fff"><strong>${h.name}</strong> • ₹${h.price} • ${h.stars}★<div style="margin-top:6px"><button class="btn" onclick="openExternal('${h.link}')">View</button><button class="btn btn-accent" onclick="saveBookingFromSlide('hotel','${h.name}','${h.price}','${city}')">Book</button></div></div>`;
+        html += `<div style="margin-bottom:8px;padding:8px;border-radius:8px;background:#fff"><strong>${escapeHtml(h.name)}</strong> • ₹${escapeHtml(String(h.price))} • ${escapeHtml(String(h.stars))}★<div style="margin-top:6px"><button class="btn" onclick="openExternal('${h.link}')" rel="noopener noreferrer">View</button><button class="btn btn-accent" onclick="saveBookingFromSlide('hotel','${escapeAttr(h.name)}','${escapeAttr(String(h.price))}','${escapeAttr(city)}')">Book</button></div></div>`;
       });
       html += `</div>`;
       out.innerHTML = html;
@@ -746,7 +794,7 @@
       const out = document.getElementById('outputBody-'+slide.id);
       let html = `<strong>Flights to ${escapeHtml(slide.city)}</strong><div style="margin-top:8px">`;
       flightSamples.forEach(f => {
-        html += `<div style="margin-bottom:8px;padding:8px;border-radius:8px;background:#f0fff4"><strong>${f.airline}</strong> • ₹${f.price} • ${f.duration} <div style="margin-top:6px"><button class="btn" onclick="openExternal('${f.link}')">View</button><button class="btn btn-accent" onclick="saveBookingFromSlide('flight','${f.airline}','${f.price}','${slide.city}')">Book</button></div></div>`;
+        html += `<div style="margin-bottom:8px;padding:8px;border-radius:8px;background:#f0fff4"><strong>${escapeHtml(f.airline)}</strong> • ₹${escapeHtml(String(f.price))} • ${escapeHtml(f.duration)} <div style="margin-top:6px"><button class="btn" onclick="openExternal('${f.link}')" rel="noopener noreferrer">View</button><button class="btn btn-accent" onclick="saveBookingFromSlide('flight','${escapeAttr(f.airline)}','${escapeAttr(String(f.price))}','${escapeAttr(slide.city)}')">Book</button></div></div>`;
       });
       html += `</div>`;
       out.innerHTML = html;
@@ -756,7 +804,7 @@
       const out = document.getElementById('outputBody-'+slide.id);
       let html = `<strong>Buses to ${escapeHtml(slide.city)}</strong><div style="margin-top:8px">`;
       busSamples.forEach(b => {
-        html += `<div style="margin-bottom:8px;padding:8px;border-radius:8px;background:#fff8f0"><strong>${b.operator}</strong> • ₹${b.price} • ${b.duration} <div style="margin-top:6px"><button class="btn" onclick="openExternal('${b.link}')">Book</button><button class="btn btn-accent" onclick="saveBookingFromSlide('bus','${b.operator}','${b.price}','${slide.city}')">Book</button></div></div>`;
+        html += `<div style="margin-bottom:8px;padding:8px;border-radius:8px;background:#fff8f0"><strong>${escapeHtml(b.operator)}</strong> • ₹${escapeHtml(String(b.price))} • ${escapeHtml(b.duration)} <div style="margin-top:6px"><button class="btn" onclick="openExternal('${b.link}')" rel="noopener noreferrer">Book</button><button class="btn btn-accent" onclick="saveBookingFromSlide('bus','${escapeAttr(b.operator)}','${escapeAttr(String(b.price))}','${escapeAttr(slide.city)}')">Book</button></div></div>`;
       });
       html += `</div>`;
       out.innerHTML = html;
@@ -766,7 +814,7 @@
       const out = document.getElementById('outputBody-'+slide.id);
       let html = `<strong>Cabs in ${escapeHtml(slide.city)}</strong><div style="margin-top:8px">`;
       cabSamples.forEach(c => {
-        html += `<div style="margin-bottom:8px;padding:8px;border-radius:8px;background:#f2f9ff"><strong>${c.operator}</strong> • ₹${c.price} • ${c.duration} <div style="margin-top:6px"><button class="btn" onclick="openExternal('${c.link}')">App</button><button class="btn btn-accent" onclick="saveBookingFromSlide('cab','${c.operator}','${c.price}','${slide.city}')">Book</button></div></div>`;
+        html += `<div style="margin-bottom:8px;padding:8px;border-radius:8px;background:#f2f9ff"><strong>${escapeHtml(c.operator)}</strong> • ₹${escapeHtml(String(c.price))} • ${escapeHtml(c.duration)} <div style="margin-top:6px"><button class="btn" onclick="openExternal('${c.link}')" rel="noopener noreferrer">App</button><button class="btn btn-accent" onclick="saveBookingFromSlide('cab','${escapeAttr(c.operator)}','${escapeAttr(String(c.price))}','${escapeAttr(slide.city)}')">Book</button></div></div>`;
       });
       html += `</div>`;
       out.innerHTML = html;
@@ -807,8 +855,11 @@
 
     // BOOKING PANEL FOR PREFILL (requires login)
     function openBookingPanel(){ if(!currentUser){ showLogin(); return; } document.getElementById('bookingPanel').style.display='block'; renderBookingPanelBody(); }
+    function closeBookingPanel(){ editingBookingId = null; document.getElementById('bookingPanel').style.display='none'; }
     function openBookingPanelPrefill(city){ if(!currentUser){ showLogin(); return; } openBookingPanel(); renderBookingPanelBody(city); }
     function renderBookingPanelBody(prefillCity=''){
+      // allow editing if editingBookingId set
+      const editing = editingBookingId;
       const body = document.getElementById('bookingPanelBody');
       body.innerHTML = `
         <label style="font-weight:600">Passenger Name</label><input id="bp_name" placeholder="Name" value="${escapeAttr(currentUser ? (currentUser.name || '') : '')}">
@@ -819,9 +870,24 @@
         <label style="font-weight:600">From / Hotel</label><input id="bp_from" value="${escapeAttr(prefillCity || '')}">
         <label style="font-weight:600">To (if travel)</label><input id="bp_to" value="">
         <label style="font-weight:600">Date</label><input id="bp_date" type="date" value="">
-        <label style="font-weight:600">Price (₹)</label><input id="bp_price" type="number" value="">
-        <div style="margin-top:8px"><button class="btn btn-accent" onclick="submitBookingFromPanel()">Save & Generate Ticket</button></div>
+        <label style="font-weight:600">Price (₹)</label><input id="bp_price" type="number" value="" min="0">
+        <div style="margin-top:8px"><button class="btn btn-accent" id="bpSaveBtn">${editing ? 'Update Booking' : 'Save & Generate Ticket'}</button></div>
       `;
+      document.getElementById('bpSaveBtn').onclick = submitBookingFromPanel;
+      // if editing, prefill values
+      if(editing){
+        const arr = loadBookings(); const b = arr.find(x=>x.id===editing);
+        if(b){
+          document.getElementById('bp_name').value = b.name || '';
+          document.getElementById('bp_email').value = b.email || b.user || '';
+          document.getElementById('bp_phone').value = b.phone || '';
+          document.getElementById('bp_type').value = b.type || 'flight';
+          document.getElementById('bp_from').value = b.from || '';
+          document.getElementById('bp_to').value = b.to || '';
+          document.getElementById('bp_date').value = b.date || '';
+          document.getElementById('bp_price').value = b.price || 0;
+        }
+      }
     }
     function submitBookingFromPanel(){
       const name = document.getElementById('bp_name').value.trim();
@@ -832,9 +898,28 @@
       const to = document.getElementById('bp_to').value.trim();
       const date = document.getElementById('bp_date').value;
       const price = parseInt(document.getElementById('bp_price').value || 0,10);
-      if(!name || !email || !date){ alert('Fill required fields'); return; }
+      // basic validation
+      if(!name || !email || !date){ alert('Fill required fields (name, email, date)'); return; }
+      if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ alert('Enter a valid email'); return; }
+      if(price < 0){ alert('Price must be positive'); return; }
+
+      const arr = loadBookings();
+      if(editingBookingId){
+        // update existing booking
+        const idx = arr.findIndex(x=>x.id === editingBookingId);
+        if(idx === -1){ alert('Booking not found'); editingBookingId = null; return; }
+        arr[idx] = Object.assign({}, arr[idx], { name, email, phone, type, from, to, date, price, updatedAt: new Date().toISOString() });
+        saveBookings(arr);
+        alert('Booking updated.');
+        editingBookingId = null;
+        closeBookingPanel();
+        return;
+      }
+
+      // new booking
+      if(!currentUser){ showLogin(); alert('Please login to book'); return; }
       const booking = { id: Date.now(), user: currentUser.email, name, email, phone, type, from, to, date, price, createdAt: new Date().toISOString() };
-      const arr = loadBookings(); arr.push(booking); saveBookings(arr);
+      arr.push(booking); saveBookings(arr);
       createTicketPDF(booking);
       alert('Booking saved & ticket generated.');
       document.getElementById('bookingPanel').style.display='none';
@@ -877,7 +962,7 @@
       recent = recent.slice(0,5);
       const el = document.getElementById('recentList');
       if(recent.length===0){ el.innerHTML = 'No bookings yet.'; return; }
-      el.innerHTML = recent.map(b=>`<div style="margin-bottom:8px"><strong>${escapeHtml(b.name)}</strong> • ${escapeHtml(b.type)} • ₹${b.price} • ${escapeHtml(b.date)} <div style="margin-top:6px"><button class="btn" onclick="createTicketPDFById(${b.id})">PDF</button></div></div>`).join('');
+      el.innerHTML = recent.map(b=>`<div style="margin-bottom:8px"><strong>${escapeHtml(b.name)}</strong> • ${escapeHtml(b.type)} • ₹${escapeHtml(String(b.price || 0))} • ${escapeHtml(b.date)} <div style="margin-top:6px"><button class="btn" onclick="createTicketPDFById(${b.id})">PDF</button> <button class="btn" onclick="editBooking(${b.id})">Edit</button></div></div>`).join('');
     }
 
     // Create ticket PDF (with logo + QR)
@@ -948,11 +1033,12 @@
           <td>${escapeHtml(b.user || '—')}</td>
           <td>${escapeHtml(b.name)}</td>
           <td>${escapeHtml(capitalize(b.type))}</td>
-          <td>${escapeHtml(b.type === 'hotel' ? (b.from || b.to) : (b.from + ' → ' + b.to))}</td>
-          <td>₹${b.price || 0}</td>
-          <td>${b.date}</td>
+          <td>${escapeHtml(b.type === 'hotel' ? (b.from || b.to) : (String(b.from || '') + ' → ' + String(b.to || '')))}</td>
+          <td>₹${escapeHtml(String(b.price || 0))}</td>
+          <td>${escapeHtml(b.date || '')}</td>
           <td>
             <button class="btn" onclick="createTicketPDFById(${b.id})">PDF</button>
+            <button class="btn" onclick="editBooking(${b.id})">Edit</button>
             <button class="btn" onclick="deleteBooking(${b.id})">Delete</button>
           </td>
         </tr>
@@ -1010,6 +1096,132 @@
     }
 
     /* -------------------------
+       PROFILE CRUD (localStorage & optional Firebase mirror)
+       ------------------------- */
+
+    function loadProfile(){
+      const raw = localStorage.getItem(PROFILE_KEY);
+      let p = raw ? JSON.parse(raw) : null;
+      // if firebase available and no local profile, try to fetch by currentUser uid/email
+      if(!p && firebaseAvailable && currentUser && currentUser.uid){
+        // best-effort: fetch any user profile from /users/<uid>
+        _fbDB.ref('users/' + currentUser.uid).once('value').then(snap=>{
+          const v = snap.val();
+          if(v){
+            p = { name: v.name || '', college: v.college || '', course: v.course || '', year: v.year || '', home: v.home || '', linkedin: v.linkedin || '', github: v.github || '', photo: v.photo || '' };
+            localStorage.setItem(PROFILE_KEY, JSON.stringify(p));
+            renderProfile(p);
+          }
+        }).catch(e=>console.warn('Profile fetch failed', e));
+      }
+      renderProfile(p);
+    }
+
+    function renderProfile(profile){
+      const photoEl = document.getElementById('profilePhoto');
+      const nameEl = document.getElementById('devName');
+      const listEl = document.getElementById('devListStatic');
+
+      if(profile){
+        if(profile.photo){
+          photoEl.src = profile.photo;
+          photoEl.style.display = 'block';
+        } else {
+          photoEl.style.display = '';
+        }
+        nameEl.innerText = profile.name || '—';
+        // update list HTML
+        listEl.innerHTML = `
+          <li><strong>College:</strong> ${escapeHtml(profile.college || 'K.B.P. Polytechnic, Satara.')}</li>
+          <li><strong>Course:</strong> ${escapeHtml(profile.course || 'Computer engineering')}</li>
+          <li><strong>Year:</strong> ${escapeHtml(profile.year || 'tyco')}</li>
+          <li><strong>Live URL (Home):</strong> <a id="liveDemoLink" class="small-link" href="${escapeAttr(profile.home || 'https://share.google/c8FBdAjZU0lVdtiKP')}" target="_blank" rel="noopener noreferrer">${escapeHtml(profile.home || 'https://share.google/c8FBdAjZU0lVdtiKP')}</a></li>
+          <li><strong>LinkedIn:</strong> <a id="linkedinLink" class="small-link" href="${escapeAttr(profile.linkedin || 'https://www.linkedin.com')}" target="_blank" rel="noopener noreferrer">${escapeHtml(profile.linkedin || 'LinkedIn')}</a></li>
+          <li><strong>GitHub:</strong> <a id="githubLink" class="small-link" href="${escapeAttr(profile.github || 'https://github.com/psalekar230-coder')}" target="_blank" rel="noopener noreferrer">${escapeHtml(profile.github || 'https://github.com/psalekar230-coder')}</a></li>
+        `;
+      } else {
+        // default values remain as present in markup; hide photo placeholder if image missing
+        photoEl.style.display = '';
+      }
+    }
+
+    function showProfileModal(){
+      const raw = localStorage.getItem(PROFILE_KEY);
+      const p = raw ? JSON.parse(raw) : null;
+      document.getElementById('profileName').value = p ? p.name || '' : 'pooja Nandkumar Salekar';
+      document.getElementById('profileCollege').value = p ? p.college || 'K.B.P. Polytechnic, Satara.' : 'K.B.P. Polytechnic, Satara.';
+      document.getElementById('profileCourse').value = p ? p.course || 'Computer engineering' : 'Computer engineering';
+      document.getElementById('profileYear').value = p ? p.year || 'tyco' : 'tyco';
+      document.getElementById('profileHome').value = p ? p.home || 'https://share.google/c8FBdAjZU0lVdtiKP' : 'https://share.google/c8FBdAjZU0lVdtiKP';
+      document.getElementById('profileLinkedIn').value = p ? p.linkedin || 'https://www.linkedin.com/in/pooja-salekar-518a8b415' : 'https://www.linkedin.com/in/pooja-salekar-518a8b415';
+      document.getElementById('profileGithub').value = p ? p.github || 'https://github.com/psalekar230-coder' : 'https://github.com/psalekar230-coder';
+      document.getElementById('profilePhotoInput').value = '';
+      document.getElementById('profileMsg').innerText = '';
+      document.getElementById('profileModal').style.display = 'flex';
+      document.getElementById('profileModal').setAttribute('aria-hidden','false');
+      // attach file input change listener
+      document.getElementById('profilePhotoInput').onchange = handleProfileImageUpload;
+    }
+
+    function hideProfileModal(){
+      document.getElementById('profileModal').style.display = 'none';
+      document.getElementById('profileModal').setAttribute('aria-hidden','true');
+    }
+
+    function handleProfileImageUpload(e){
+      const f = e.target.files && e.target.files[0];
+      if(!f) return;
+      if(!f.type.startsWith('image/')){ alert('Please upload an image file'); return; }
+      const reader = new FileReader();
+      reader.onload = function(ev){
+        // show preview in the modal (not strictly necessary) and save to localStorage when Save pressed
+        // store temporary result in a hidden field or just set a property on DOM element
+        document.getElementById('profilePhotoInput').dataset.preview = ev.target.result;
+      };
+      reader.readAsDataURL(f);
+    }
+
+    function saveProfile(){
+      const name = document.getElementById('profileName').value.trim();
+      const college = document.getElementById('profileCollege').value.trim();
+      const course = document.getElementById('profileCourse').value.trim();
+      const year = document.getElementById('profileYear').value.trim();
+      const home = document.getElementById('profileHome').value.trim();
+      const linkedin = document.getElementById('profileLinkedIn').value.trim();
+      const github = document.getElementById('profileGithub').value.trim();
+      const preview = document.getElementById('profilePhotoInput').dataset.preview;
+
+      if(!name){ alert('Name is required'); return; }
+      const profile = { name, college, course, year, home, linkedin, github };
+      if(preview) profile.photo = preview;
+
+      localStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
+      // mirror to firebase small profile store if available and user is logged in
+      if(firebaseAvailable && currentUser && currentUser.uid){
+        try{
+          _fbDB.ref('users/' + currentUser.uid).update({ name: profile.name, college: profile.college, course: profile.course, year: profile.year, home: profile.home, linkedin: profile.linkedin, github: profile.github, photo: profile.photo || null }).catch(e=>console.warn('Profile mirror failed', e));
+        }catch(e){
+          console.warn('Profile mirror error', e);
+        }
+      }
+      renderProfile(profile);
+      document.getElementById('profileMsg').style.color = 'green';
+      document.getElementById('profileMsg').innerText = 'Saved';
+      setTimeout(()=>{ hideProfileModal(); document.getElementById('profileMsg').innerText=''; },800);
+    }
+
+    function deleteProfile(){
+      if(!confirm('Delete profile data and photo?')) return;
+      localStorage.removeItem(PROFILE_KEY);
+      // remove in firebase too if available
+      if(firebaseAvailable && currentUser && currentUser.uid){
+        _fbDB.ref('users/' + currentUser.uid).update({ photo: null }).catch(e=>console.warn('Failed to remove profile photo in firebase', e));
+      }
+      loadProfile();
+      alert('Profile cleared.');
+    }
+
+    /* -------------------------
        HELPERS, NAV & UI INIT
        ------------------------- */
 
@@ -1018,9 +1230,9 @@
     function capitalize(s){ return s && s[0].toUpperCase()+s.slice(1) || ''; }
     function sleep(ms){ return new Promise(r=>setTimeout(r, ms)); }
 
-    function openExternal(url){ window.open(url,'_blank'); }
-    function openMapPrompt(defaultCity){ const q = prompt('Open map for city:', defaultCity || 'Goa'); if(q) window.open(`https://www.google.com/maps?q=${encodeURIComponent(q)}`,'_blank'); }
-    function openMapsSearch(){ const q = prompt('Open Google Maps for city (e.g., Goa):', 'Goa'); if(q) window.open(`https://www.google.com/maps?q=${encodeURIComponent(q)}`,'_blank'); }
+    function openExternal(url){ window.open(url,'_blank','noopener'); }
+    function openMapPrompt(defaultCity){ const q = prompt('Open map for city:', defaultCity || 'Goa'); if(q) window.open(`https://www.google.com/maps?q=${encodeURIComponent(q)}`,'_blank','noopener'); }
+    function openMapsSearch(){ const q = prompt('Open Google Maps for city (e.g., Goa):', 'Goa'); if(q) window.open(`https://www.google.com/maps?q=${encodeURIComponent(q)}`,'_blank','noopener'); }
 
     // slide navigation
     let current = 1;
@@ -1050,6 +1262,7 @@
       const date = document.getElementById('date').value;
       const price = parseInt(document.getElementById('price').value || 0, 10);
       if(!name || !email || !date || (type !== 'hotel' && (!from || !to))){ alert('Please fill required fields.'); return; }
+      if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ alert('Invalid email'); return; }
       const booking = { id: Date.now(), user: currentUser.email, name, email, phone, type, passengers, from, to, date, price, createdAt: new Date().toISOString() };
       const arr = loadBookings(); arr.push(booking); saveBookings(arr);
       createTicketPDF(booking);
@@ -1072,11 +1285,20 @@
       document.getElementById('price').value = 2599;
     }
 
+    // edit booking
+    function editBooking(id){
+      // open booking panel in edit mode
+      editingBookingId = id;
+      openBookingPanel();
+      renderBookingPanelBody();
+    }
+
     // On load
     document.addEventListener('DOMContentLoaded', ()=>{
       renderSlides();
       updateRecentList();
       updateAdminTable();
+      loadProfile();
       document.addEventListener('keydown', (e)=>{ if(e.key === 'ArrowRight') nextSlide(); if(e.key === 'ArrowLeft') prevSlide(); });
       // seed sample user booking if none
       if(loadBookings().length === 0){
