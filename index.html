@@ -1,4 +1,3 @@
-```html
 <!doctype html>
 <html lang="en">
 <head>
@@ -67,6 +66,14 @@
     .confetti-piece{position:absolute;width:10px;height:14px;opacity:0.95}
     @keyframes confettiFall { to { transform: translateY(120vh) rotate(720deg); } }
 
+    /* iframe modal for live demo */
+    .iframe-modal{position:fixed;inset:0;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;z-index:1200;padding:18px}
+    .iframe-card{width:100%;max-width:1100px;height:80vh;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 40px 80px rgba(2,6,23,0.3);display:flex;flex-direction:column}
+    .iframe-header{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:linear-gradient(90deg,var(--accent1),var(--accent2));color:#fff}
+    .iframe-body{flex:1;background:#fff}
+    .iframe-body iframe{width:100%;height:100%;border:0}
+    .iframe-actions{padding:10px;border-top:1px solid #eef6ff;background:#fbfeff;display:flex;gap:8px;justify-content:flex-end}
+
     footer{margin-top:18px;text-align:center;color:#fff;font-weight:700;padding:14px;background:linear-gradient(90deg,var(--accent1),var(--accent2));border-radius:12px}
   </style>
 </head>
@@ -81,7 +88,9 @@
     </div>
 
     <nav id="topNav">
-      <a class="btn btn-primary" href="https://psalekar230-coder.github.io/AI-Travel-Planners/" target="_blank" rel="noopener"><i class="fa-solid fa-up-right-from-square"></i> Live Demo</a>
+      <!-- Live Demo button now opens the embedded modal pointing to the requested URL -->
+      <button id="liveDemoBtn" class="btn btn-primary"><i class="fa-solid fa-up-right-from-square"></i> Live Demo</button>
+
       <button id="muteBtn" class="btn" title="Mute / Unmute"><i class="fa-solid fa-volume-high"></i> Mute</button>
     </nav>
   </header>
@@ -148,6 +157,25 @@
 
   <!-- confetti container -->
   <div id="confettiRoot" class="confetti" aria-hidden="true"></div>
+
+  <!-- Live Demo iframe modal (hidden by default) -->
+  <div id="iframeModal" class="iframe-modal" aria-hidden="true">
+    <div class="iframe-card" role="dialog" aria-modal="true" aria-label="Live demo preview">
+      <div class="iframe-header">
+        <div><strong>Live Demo Preview</strong></div>
+        <div style="display:flex;gap:8px">
+          <a id="openInNewTab" class="btn btn-outline" href="https://psalekar230-coder.github.io/AI/" target="_blank" rel="noopener">Open in new tab</a>
+          <button class="btn" id="closeIframe">Close</button>
+        </div>
+      </div>
+      <div class="iframe-body" id="iframeBody">
+        <iframe id="liveIframe" src="about:blank" title="Live demo"></iframe>
+      </div>
+      <div class="iframe-actions">
+        <small class="muted">If the demo doesn't load due to cross-origin restrictions, open it in a new tab.</small>
+      </div>
+    </div>
+  </div>
 
 <script>
 /* =========================
@@ -497,8 +525,39 @@ window.addEventListener('load', ()=> {
   }, 800);
 });
 
-/* end of script */
+/* -------------------------
+   Live Demo modal logic
+   ------------------------- */
+const LIVE_URL = 'https://psalekar230-coder.github.io/AI/';
+const liveDemoBtn = document.getElementById('liveDemoBtn');
+const iframeModal = document.getElementById('iframeModal');
+const liveIframe = document.getElementById('liveIframe');
+const closeIframe = document.getElementById('closeIframe');
+const openInNewTab = document.getElementById('openInNewTab');
+
+liveDemoBtn.addEventListener('click', () => {
+  // set iframe src to the requested URL and show modal
+  liveIframe.src = LIVE_URL;
+  iframeModal.style.display = 'flex';
+  iframeModal.setAttribute('aria-hidden', 'false');
+  // update openInNewTab href
+  openInNewTab.href = LIVE_URL;
+});
+
+closeIframe.addEventListener('click', () => {
+  iframeModal.style.display = 'none';
+  iframeModal.setAttribute('aria-hidden', 'true');
+  liveIframe.src = 'about:blank';
+});
+
+// close modal when clicking outside the card
+iframeModal.addEventListener('click', (e) => {
+  if(e.target === iframeModal){
+    iframeModal.style.display = 'none';
+    iframeModal.setAttribute('aria-hidden', 'true');
+    liveIframe.src = 'about:blank';
+  }
+});
 </script>
 </body>
 </html>
-```
