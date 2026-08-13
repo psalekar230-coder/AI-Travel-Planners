@@ -3,1456 +3,614 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>✈️ AI Travel Planner — PSAI</title>
+  <title>AI Travel Planner — Project Presentation</title>
+
+  <meta name="description" content="AI Travel Planner — Smart AI-Based Travel Planning & Itinerary Management System. Live demo, architecture, features and docs.">
+  <meta property="og:title" content="AI Travel Planner — Project Presentation">
+  <meta property="og:description" content="Plan personalized trips, generate intelligent itineraries, estimate budgets and manage journeys with an AI-powered travel assistant.">
+  <meta property="og:url" content="https://psalekar230-coder.github.io/AI-Travel-Planners/">
+  <meta name="twitter:card" content="summary_large_image">
 
   <!-- Fonts & icons -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-  <script src="https://unpkg.com/lucide/dist/umd/lucide.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
-  <!-- Firebase SDKs (compat) -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="" crossorigin="anonymous">
 
   <style>
     :root{
-      --blue:#0f6cff; --blue-2:#2b8cff; --bg:#f5f8fb; --card:#ffffff; --muted:#6b7280; --radius:14px;
+      --bg: #0f1724;
+      --card:#ffffff;
+      --muted:#6b7280;
+      --accent1:#2563EB;
+      --accent2:#60A5FA;
+      --glass: rgba(255,255,255,0.06);
+      --radius:14px;
+      --glass-border: rgba(255,255,255,0.06);
     }
     *{box-sizing:border-box}
-    html,body{height:100%;margin:0;font-family:Inter,system-ui,Arial,sans-serif;background:linear-gradient(180deg,var(--bg),#ffffff);color:#0f1724;scroll-behavior:smooth}
-    header{position:sticky;top:0;z-index:60;background:rgba(255,255,255,0.96);backdrop-filter:blur(6px);border-bottom:1px solid #eef2f6;display:flex;align-items:center;justify-content:space-between;padding:10px 16px;gap:12px}
-    .logo{display:flex;align-items:center;gap:10px}
-    .logo img{width:40px;height:40px;border-radius:8px}
-    .logo .brand{font-weight:800;font-size:18px}
-    nav{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-    .nav-link{background:transparent;border:none;padding:8px 12px;border-radius:10px;color:var(--muted);cursor:pointer;font-weight:600}
-    .nav-link:hover{background:#f1f5ff;color:var(--blue)}
-    .btn{padding:10px 14px;border-radius:10px;border:none;cursor:pointer;background:var(--card);box-shadow:0 6px 20px rgba(12,25,50,0.06);font-weight:700}
-    .btn-primary{background:linear-gradient(90deg,var(--blue),var(--blue-2));color:#fff}
-    .btn-accent{background:linear-gradient(90deg,#ffd36b,#ff8a4d);color:#0f1724}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+      color:#0b1220;
+      background: linear-gradient(180deg,#f7fbff,#ffffff);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      line-height:1.45;
+    }
+
+    /* Navigation */
+    header.site-header{
+      position:sticky; top:0; z-index:1200;
+      backdrop-filter: blur(6px);
+      background: linear-gradient(180deg, rgba(255,255,255,0.70), rgba(255,255,255,0.50));
+      padding:14px 20px;
+      border-bottom: 1px solid rgba(15,23,36,0.04);
+      display:flex;align-items:center;justify-content:space-between;gap:12px;
+    }
+    .brand{display:flex;align-items:center;gap:12px}
+    .brand .logo{
+      width:52px;height:52px;border-radius:12px;background:linear-gradient(90deg,var(--accent1),var(--accent2));
+      display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:18px;
+      box-shadow:0 8px 24px rgba(37,99,235,0.12);
+    }
+    .brand h1{margin:0;font-size:16px}
+    nav.main-nav{display:flex;gap:8px;align-items:center}
+    nav.main-nav a{color:#0f1724;text-decoration:none;padding:8px 12px;border-radius:10px;font-weight:600}
+    nav.main-nav a[href^="#"]:hover{background:rgba(37,99,235,0.08)}
+    .cta{display:inline-flex;gap:8px;align-items:center;padding:10px 14px;border-radius:12px;background:linear-gradient(90deg,var(--accent1),var(--accent2));color:#fff;text-decoration:none;font-weight:700;box-shadow:0 12px 28px rgba(37,99,235,0.12)}
+
+    /* Layout */
+    .container{max-width:1100px;margin:36px auto;padding:0 18px}
+    .hero{
+      display:grid;grid-template-columns:1fr 420px;gap:24px;align-items:center;
+    }
+    @media(max-width:980px){ .hero{grid-template-columns:1fr} .brand h1{font-size:14px} }
+
+    /* Hero Card */
+    .hero-card{background:linear-gradient(180deg,#fff,#fbfdff);padding:30px;border-radius:18px;box-shadow:0 20px 50px rgba(15,23,36,0.06);border:1px solid rgba(37,99,235,0.04)}
+    .badge{display:inline-block;padding:6px 10px;border-radius:999px;background:linear-gradient(90deg,var(--accent2),#93c5fd);color:#0b1220;font-weight:700;font-size:13px}
+    .hero-title{font-size:36px;margin:14px 0 8px;line-height:1.05;color:#07103a;font-weight:700}
+    .hero-sub{color:var(--muted);margin-bottom:16px}
+    .hero-actions{display:flex;gap:12px;flex-wrap:wrap}
+    .btn-secondary{background:transparent;border:1px solid rgba(15,23,36,0.06);padding:10px 14px;border-radius:12px;color:#07103a;text-decoration:none;font-weight:600}
+    .hero-ill{
+      background:linear-gradient(180deg,#fff,#f4fbff);
+      border-radius:18px;padding:18px;border:1px solid rgba(2,6,23,0.04);
+      box-shadow:0 18px 48px rgba(2,6,23,0.04);
+    }
+
+    /* Feature grid */
+    .features{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:22px}
+    @media(max-width:980px){ .features{grid-template-columns:repeat(2,1fr)} }
+    @media(max-width:560px){ .features{grid-template-columns:1fr} }
+
+    .feature{
+      background:linear-gradient(180deg,#fff,#ffffff);padding:14px;border-radius:12px;border:1px solid rgba(2,6,23,0.04);
+      display:flex;gap:12px;align-items:flex-start;
+    }
+    .feature i{font-size:20px;color:var(--accent1);width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:rgba(96,165,250,0.08)}
+    .feature h4{margin:0 0 4px;font-size:15px}
+    .feature p{margin:0;color:var(--muted);font-size:13px}
+
+    /* Sections */
+    section.card{background:linear-gradient(180deg,#fff,#fff);padding:22px;border-radius:14px;border:1px solid rgba(2,6,23,0.04);box-shadow:0 12px 30px rgba(2,6,23,0.04);margin-top:18px}
+    h2.section-title{margin:0 0 12px;font-size:18px;color:#07103a}
+    p.lead{color:var(--muted);margin-top:0}
+
+    /* How it works */
+    .process{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+    .step{flex:1;min-width:160px;padding:12px;border-radius:12px;background:linear-gradient(180deg,#fff,#fbfdff);border:1px solid rgba(2,6,23,0.04);text-align:center}
+    .step .num{width:42px;height:42px;border-radius:10px;background:linear-gradient(90deg,var(--accent1),var(--accent2));color:white;display:inline-flex;align-items:center;justify-content:center;font-weight:700;margin-bottom:8px}
+
+    /* Architecture SVG container */
+    .arch-wrap{display:flex;align-items:center;justify-content:center;padding:14px}
+
+    /* Tech stack */
+    .tech-grid{display:flex;flex-wrap:wrap;gap:10px}
+    .tech{padding:8px 12px;border-radius:10px;background:linear-gradient(180deg,#fff,#fbfdff);border:1px solid rgba(2,6,23,0.04);display:flex;gap:10px;align-items:center}
+    .tech i{color:var(--accent1);width:28px;height:28px;display:flex;align-items:center;justify-content:center}
+
+    /* Preview / iframe */
+    .preview-card{height:380px;border-radius:12px;overflow:hidden;border:1px solid rgba(2,6,23,0.04)}
+    .preview-card iframe{width:100%;height:100%;border:0}
+
+    /* Docs grid */
+    .docs-grid{display:flex;gap:12px;flex-wrap:wrap}
+    .doc-card{flex:1;min-width:160px;padding:14px;border-radius:12px;background:linear-gradient(180deg,#fff,#fbfdff);border:1px solid rgba(2,6,23,0.04);display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit}
+
+    /* Developer card */
+    .dev-card{display:flex;gap:16px;align-items:center}
+    .dev-avatar{width:92px;height:92px;border-radius:14px;background:linear-gradient(90deg,var(--accent1),var(--accent2));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:28px}
+    .socials{display:flex;gap:8px}
+
+    /* Footer */
+    footer.site-footer{margin-top:28px;padding:18px;border-radius:12px;background:linear-gradient(90deg,var(--accent1),var(--accent2));color:#fff;text-align:center}
+
+    /* small touches */
     .muted{color:var(--muted);font-size:13px}
-    main{max-width:1200px;margin:18px auto;padding:0 18px}
+    a{color:inherit}
+    .small{font-size:13px;color:var(--muted)}
+    .pill{display:inline-block;padding:6px 10px;border-radius:999px;background:rgba(37,99,235,0.06);color:var(--accent1);font-weight:700}
 
-    /* Layout: Dashboard columns */
-    .dashboard{display:grid;grid-template-columns:360px 1fr 360px;gap:16px;align-items:start}
-    @media (max-width:1100px){ .dashboard{grid-template-columns:1fr; } .right-column{order:3} .center-column{order:2} .left-column{order:1} }
-
-    /* Planner card */
-    .card{background:var(--card);padding:14px;border-radius:12px;box-shadow:0 10px 30px rgba(12,25,50,0.04)}
-    .field{display:flex;flex-direction:column;margin-bottom:10px}
-    .field label{font-size:13px;margin-bottom:6px;color:var(--muted)}
-    .field input,.field select{padding:10px;border-radius:8px;border:1px solid #e6e9ef}
-    .chips{display:flex;gap:8px;flex-wrap:wrap}
-
-    /* Chat assistant */
-    .assistant{display:flex;flex-direction:column;height:520px}
-    .chat-history{flex:1;overflow:auto;padding:12px;border-radius:8px;background:linear-gradient(180deg,#fbfdff,#fff)}
-    .chat-input{display:flex;gap:8px;margin-top:8px;align-items:center}
-    .chat-input input{flex:1;padding:10px;border-radius:8px;border:1px solid #e6e9ef}
-    .mic-btn{padding:8px;border-radius:8px;border:1px solid #e6e9ef;background:#fff;cursor:pointer}
-
-    /* Itinerary & Budget */
-    .itinerary{margin-top:12px;display:grid;grid-template-columns:1fr;gap:12px}
-    .day-card{background:linear-gradient(180deg,#fff,#fcfdff);padding:12px;border-radius:10px;border-left:6px solid var(--blue)}
-    .budget-bar{height:14px;background:#f1f5f9;border-radius:999px;overflow:hidden}
-    .budget-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--blue-2));width:0%}
-
-    /* Loading modal */
-    .loading-modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:9999;background:rgba(0,0,0,0.4);color:#fff}
-    .loading-modal.show{display:flex}
-    .loading-box{width:92%;max-width:520px;background:linear-gradient(180deg,#0f1724,#0b1220);border-radius:12px;padding:20px;text-align:center}
-    .stage{margin-top:12px;opacity:0.9;color:#cfe4ff}
-
-    /* Small helpers */
-    .small-muted{color:var(--muted);font-size:13px}
-
-    /* Success banner */
-    .success-banner{padding:12px;border-radius:10px;background:linear-gradient(90deg,#e6ffef,#f0fff4);color:#0b7a3a}
-
-    /* Responsive */
-    @media (max-width:700px){ header{padding:8px} .assistant{height:360px} .itinerary{grid-template-columns:1fr} .dashboard{gap:10px} }
+    /* smooth scroll */
+    html{scroll-behavior:smooth}
   </style>
 </head>
 <body>
-  <header>
-    <div class="logo">
-      <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'><defs><linearGradient id='g' x1='0' x2='1'><stop offset='0' stop-color='%230f6cff'/><stop offset='1' stop-color='%234cd3a6'/></linearGradient></defs><rect rx='18' width='120' height='120' fill='url(%23g)'/><text x='18' y='74' font-family='Inter, sans-serif' font-size='42' fill='white' font-weight='700'>AI</text></svg>" alt="AI Travel">
+  <header class="site-header" role="banner">
+    <div class="brand" aria-hidden="false">
+      <div class="logo" aria-hidden="true">PS</div>
       <div>
-        <div class="brand">✈️ AI Travel Planner</div>
-        <div class="small-muted">Professional demo — Demo Mode</div>
+        <h1 style="margin:0;font-size:15px">AI Travel Planner</h1>
+        <div class="small muted">Smart AI-Based Travel Planning System</div>
       </div>
     </div>
 
-    <nav>
-      <button class="nav-link" onclick="scrollToSection('aiPlannerSection')">AI Planner</button>
-      <button class="nav-link" onclick="showTrips()">My Trips</button>
-      <button class="nav-link" onclick="scrollToSection('slidesSection')">Bookings</button>
-      <button class="nav-link" onclick="showAbout()">About</button>
-
-      <span style="width:12px"></span>
-
-      <button id="demoToggle" class="btn" onclick="toggleDemo()">Demo Mode: ON</button>
-      <button id="authBtn" class="btn" onclick="handleAuthClick()">Login</button>
-      <span id="userLabel" style="margin-left:8px;font-weight:700;color:var(--muted)"></span>
+    <nav class="main-nav" role="navigation" aria-label="Main navigation">
+      <a href="#about">About</a>
+      <a href="#features">Features</a>
+      <a href="#how">How It Works</a>
+      <a href="#architecture">Architecture</a>
+      <a href="#tech">Technology</a>
+      <a href="#demo">Demo</a>
+      <a href="#future">Future Scope</a>
+      <a href="#developer">Developer</a>
+      <a class="cta" id="launchDemoTop" href="https://psalekar230-coder.github.io/AI/" target="_blank" rel="noopener">
+        <i class="fa-solid fa-rocket"></i> Launch Live AI Demo
+      </a>
     </nav>
   </header>
 
-  <main id="home">
-    <h1 style="margin:10px 0 4px;font-size:28px">Plan Your Perfect Trip with AI</h1>
-    <p class="small-muted">Tell me where you want to go, your budget and travel preferences. I'll create a personalized travel plan for you.</p>
+  <main class="container" role="main">
+    <!-- HERO -->
+    <section class="hero">
+      <div class="hero-card" aria-labelledby="hero-title">
+        <span class="badge" aria-hidden="true">AI-Powered Travel Planning System</span>
+        <h2 id="hero-title" class="hero-title">AI Travel Planner</h2>
+        <div class="hero-sub">Smart AI-Based Travel Planning & Itinerary Management System</div>
+        <p class="lead">Plan personalized trips, generate intelligent itineraries, estimate budgets, explore destinations and manage your complete journey with an AI-powered travel assistant.</p>
 
-    <div class="dashboard" style="margin-top:12px">
-      <!-- LEFT: Planner Form -->
-      <div class="left-column">
-        <div class="card">
-          <strong>AI Trip Planner</strong>
-          <div class="small-muted" style="margin-top:6px">Fill the form or use voice input to describe your trip.</div>
+        <div class="hero-actions" style="margin-top:14px">
+          <a class="cta" id="launchDemoHero" href="https://psalekar230-coder.github.io/AI/" target="_blank" rel="noopener">
+            <i class="fa-solid fa-rocket"></i> 🚀 Launch Live AI Demo
+          </a>
+          <a class="btn-secondary" id="viewProjectBtn" href="https://github.com/psalekar230-coder/AI-Travel-Planners" target="_blank" rel="noopener">
+            <i class="fa-solid fa-folder-open"></i> 📂 View Project
+          </a>
+        </div>
 
-          <div id="plannerForm" style="margin-top:12px">
-            <div class="field">
-              <label for="destInput">Destination</label>
-              <input id="destInput" placeholder="e.g., Goa, Kerala or 'Mumbai & Lonavala'"/>
+        <div style="margin-top:18px;color:var(--muted);font-size:13px">Small, fast, GitHub Pages compatible project — suitable for demos and interviews.</div>
+
+        <div style="margin-top:22px" class="features" aria-hidden="false">
+          <!-- Feature highlights (only implemented features) -->
+          <div class="feature">
+            <i class="fa-solid fa-robot"></i>
+            <div>
+              <h4>AI Travel Assistant</h4>
+              <p>Rule-based AI assistant for itinerary suggestions and planning prompts (local logic).</p>
             </div>
-
-            <div style="display:flex;gap:8px">
-              <div class="field" style="flex:1">
-                <label for="daysInput">Number of Days</label>
-                <input id="daysInput" type="number" min="1" value="3"/>
-              </div>
-              <div class="field" style="flex:1">
-                <label for="dateInput">Travel Date</label>
-                <input id="dateInput" type="date"/>
-              </div>
-            </div>
-
-            <div style="display:flex;gap:8px">
-              <div class="field" style="flex:1">
-                <label for="travellersInput">Number of Travelers</label>
-                <input id="travellersInput" type="number" min="1" value="1"/>
-              </div>
-              <div class="field" style="flex:1">
-                <label for="budgetInput">Budget (₹)</label>
-                <input id="budgetInput" type="number" min="0" placeholder="e.g., 15000"/>
-              </div>
-            </div>
-
-            <div class="field">
-              <label>Travel Style</label>
-              <select id="styleInput">
-                <option value="Budget">Budget</option>
-                <option value="Standard" selected>Standard</option>
-                <option value="Luxury">Luxury</option>
-                <option value="Adventure">Adventure</option>
-                <option value="Family">Family</option>
-                <option value="Relaxation">Relaxation</option>
-              </select>
-            </div>
-
-            <div class="field">
-              <label>Interests</label>
-              <div class="chips" id="interestsWrap">
-                <label><input type="checkbox" value="Nature" checked/> Nature</label>
-                <label><input type="checkbox" value="Adventure"/> Adventure</label>
-                <label><input type="checkbox" value="Food" checked/> Food</label>
-                <label><input type="checkbox" value="Culture"/> Culture</label>
-                <label><input type="checkbox" value="Shopping"/> Shopping</label>
-                <label><input type="checkbox" value="History"/> History</label>
-                <label><input type="checkbox" value="Beaches" checked/> Beaches</label>
-                <label><input type="checkbox" value="Nightlife"/> Nightlife</label>
-              </div>
-            </div>
-
-            <div style="display:flex;gap:8px;margin-top:12px;align-items:center">
-              <button class="btn btn-primary" id="generateBtn" onclick="generateMyTrip()">✨ Generate My Trip</button>
-              <button class="btn" id="voiceBtn" onclick="toggleVoice()">
-                🎙️ Voice Input
-              </button>
-              <div style="flex:1;text-align:right">
-                <button class="btn" onclick="autoFillPlanner()">Sample</button>
-              </div>
-            </div>
-
-            <div class="small-muted" style="margin-top:10px">Note: This demo uses local generation and estimates. No payments or live booking are processed.</div>
           </div>
 
-          <div id="plannerResult" style="margin-top:12px"></div>
+          <div class="feature">
+            <i class="fa-solid fa-microphone"></i>
+            <div>
+              <h4>Voice Interaction</h4>
+              <p>Speech synthesis (assistant reads replies) and voice-friendly UI using Web Speech API.</p>
+            </div>
+          </div>
+
+          <div class="feature">
+            <i class="fa-solid fa-file-pdf"></i>
+            <div>
+              <h4>PDF / Ticket Generation</h4>
+              <p>Generate downloadable e-ticket PDFs with jsPDF directly in the browser.</p>
+            </div>
+          </div>
+
+          <div class="feature">
+            <i class="fa-solid fa-calculator"></i>
+            <div>
+              <h4>Smart Budget Estimation</h4>
+              <p>Quick budget estimates based on days and people — useful for planning and comparisons.</p>
+            </div>
+          </div>
+
+          <div class="feature">
+            <i class="fa-solid fa-hotel"></i>
+            <div>
+              <h4>Basic Hotel Suggestions</h4>
+              <p>Simple rule-based hotel recommendations and cost tiers provided by the assistant.</p>
+            </div>
+          </div>
+
+          <div class="feature">
+            <i class="fa-solid fa-save"></i>
+            <div>
+              <h4>Save Trips (Local)</h4>
+              <p>Bookings and trips are stored in browser localStorage — keep demos private and fast.</p>
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- CENTER: Itinerary / Slides -->
-      <div class="center-column">
-        <!-- Loading / Generation experience -->
-        <div id="loadingModal" class="loading-modal" role="alert" aria-hidden="true">
-          <div class="loading-box">
-            <div style="font-size:18px;font-weight:800">🤖 AI is planning your journey...</div>
-            <div id="loadingStages" style="margin-top:10px">
-              <div class="stage" id="stage1">Understanding your preferences...</div>
-              <div class="stage" id="stage2" style="margin-top:8px">Creating itinerary...</div>
-              <div class="stage" id="stage3" style="margin-top:8px">Calculating estimated budget...</div>
-              <div class="stage" id="stage4" style="margin-top:8px">Preparing recommendations...</div>
-            </div>
+      <!-- Right column: preview / quick demo card -->
+      <aside class="hero-ill" aria-labelledby="preview-title">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px">
+          <div>
+            <div id="preview-title" style="font-weight:700">Experience the AI Travel Planner</div>
+            <div class="muted small">Working Application • Interactive Demo</div>
+          </div>
+
+          <div style="display:flex;gap:8px">
+            <a class="btn-secondary" href="https://psalekar230-coder.github.io/AI/" target="_blank" rel="noopener"><i class="fa-solid fa-up-right-from-square"></i> Open</a>
           </div>
         </div>
 
-        <!-- Generated result -->
-        <div id="generatedPanel" style="display:none">
-          <div class="card" id="overviewCard">
-            <div style="display:flex;justify-content:space-between;align-items:center">
-              <div>
-                <div style="font-weight:800" id="overviewTitle">Trip Overview</div>
-                <div class="small-muted" id="overviewSub">Generated by local AI engine (estimates)</div>
-              </div>
-              <div style="text-align:right">
-                <div id="overviewBudget" style="font-weight:800"></div>
-                <div class="small-muted" id="overviewStatus"></div>
-              </div>
-            </div>
-
-            <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
-              <button class="btn" onclick="saveGeneratedAsTrip()">Save Trip</button>
-              <button class="btn" onclick="downloadGeneratedPDF()">Download PDF</button>
-              <button class="btn" onclick="window.scrollTo({top: document.getElementById('tripsSection').offsetTop, behavior:'smooth'})">View My Trips</button>
-              <button class="btn" onclick="document.getElementById('generatedPanel').style.display='none'">Close</button>
-            </div>
-          </div>
-
-          <div id="itineraryArea" class="itinerary" style="margin-top:12px"></div>
-
-          <div id="budgetCard" class="card" style="margin-top:12px">
-            <strong>Smart Budget (Estimates)</strong>
-            <div class="small-muted" style="margin-top:6px">Breakdown is an estimate. Replace with real quotes for production.</div>
-            <div style="margin-top:10px">
-              <div style="display:flex;justify-content:space-between"><div>Estimated Total</div><div id="estTotal" style="font-weight:800"></div></div>
-              <div style="margin-top:6px" class="budget-bar"><div id="budgetFill" class="budget-fill"></div></div>
-              <div style="display:flex;justify-content:space-between;margin-top:8px">
-                <div class="small-muted">Your Budget</div><div id="userBudgetLabel" class="small-muted"></div>
-              </div>
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px">
-                <div>Accommodation: <strong id="b_accom">-</strong></div>
-                <div>Food: <strong id="b_food">-</strong></div>
-                <div>Transport: <strong id="b_trans">-</strong></div>
-                <div>Activities: <strong id="b_act">-</strong></div>
-                <div>Misc: <strong id="b_misc">-</strong></div>
-              </div>
-            </div>
-          </div>
+        <div class="preview-card" role="region" aria-label="Live demo preview">
+          <!-- iframe preview — may be blocked by cross-origin, still useful as preview -->
+          <iframe id="previewIframe" src="https://psalekar230-coder.github.io/AI/" title="AI Travel Planner preview"></iframe>
         </div>
 
-        <!-- Existing slides (kept) -->
-        <section id="slidesSection" class="slides-wrap" style="margin-top:18px">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px">
-            <h3>Interactive Slides (20)</h3>
-            <div class="small-muted">Each slide shows quick actions and demo content.</div>
-          </div>
-
-          <div class="slides card" id="slidesContainer" aria-live="polite"></div>
-          <div class="slides-nav" id="slidesNav"></div>
-          <div class="progress"><i id="progBar"></i></div>
-        </section>
-      </div>
-
-      <!-- RIGHT: AI Chat Assistant & My Trips quick -->
-      <div class="right-column">
-        <div class="card assistant">
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <strong>AI Assistant</strong>
-            <div class="small-muted">Type or speak — demo only</div>
-          </div>
-
-          <div id="chatHistory" class="chat-history" role="log" aria-live="polite"></div>
-
-          <div class="chat-input" style="margin-top:8px">
-            <input id="chatInput" placeholder="Ask: 'Plan a 3-day Goa trip under ₹10,000'"/>
-            <button class="mic-btn" id="micControl" onclick="toggleVoiceChat()">🎙️</button>
-            <button class="btn btn-primary" onclick="sendChat()">Send</button>
-          </div>
-
-          <div style="margin-top:8px">
-            <div class="small-muted">Voice output:
-              <button class="btn" id="voiceOutToggle" onclick="toggleVoiceOut()">🔊 On</button>
-            </div>
-          </div>
+        <div style="margin-top:10px;display:flex;gap:8px;align-items:center">
+          <a class="cta" href="https://psalekar230-coder.github.io/AI/" target="_blank" rel="noopener"><i class="fa-solid fa-rocket"></i> 🚀 Launch Live AI Demo</a>
+          <div class="small muted" style="margin-left:auto">Demo hosted on GitHub Pages</div>
         </div>
-
-        <div style="height:12px"></div>
-
-        <div class="card">
-          <strong>Quick My Trips</strong>
-          <div class="small-muted" style="margin-top:6px">Saved trips are stored locally (demo)</div>
-          <div id="miniTrips" style="margin-top:8px"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- My Trips (keeps existing) -->
-    <section id="tripsSection" style="margin-top:18px;display:none">
-      <div class="card">
-        <strong>My Trips</strong>
-        <div class="tabs" style="margin-top:12px">
-          <button class="tab active" data-tab="upcoming" onclick="switchTripTab(event)">Upcoming</button>
-          <button class="tab" data-tab="completed" onclick="switchTripTab(event)">Completed</button>
-          <button class="tab" data-tab="cancelled" onclick="switchTripTab(event)">Cancelled</button>
-        </div>
-        <div id="tripsList" class="trips-list" style="margin-top:12px"></div>
-      </div>
+      </aside>
     </section>
 
-    <!-- Admin kept -->
-    <section id="adminSection" style="display:none;margin-top:18px">
-      <div class="card">
-        <strong>Admin</strong>
-        <div style="margin-top:12px">
-          <div id="adminSummary" class="small-muted"></div>
-          <div style="margin-top:12px"><button class="btn" onclick="renderAdmin()">Refresh</button> <button class="btn" onclick="closeAdmin()">Close</button></div>
-          <div id="adminContent" style="margin-top:12px"></div>
+    <!-- ABOUT / OVERVIEW -->
+    <section id="about" class="card" aria-labelledby="about-title">
+      <h2 id="about-title" class="section-title">Project Overview</h2>
+      <p class="lead">AI Travel Planner is an intelligent travel planning platform that helps users create personalized travel plans based on destination, duration, budget and preferences. It consolidates itinerary creation, budget estimation and e-ticket generation into a single, easy-to-use web experience.</p>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:12px">
+        <div>
+          <h4 style="margin:0 0 8px">The problem</h4>
+          <p class="muted">Traditional travel planning forces users to visit multiple sites to gather destination details, hotels, transport options and budgets. This is time-consuming and fragmented.</p>
+        </div>
+        <div>
+          <h4 style="margin:0 0 8px">The solution</h4>
+          <p class="muted">AI Travel Planner combines rule-based AI assistant logic, voice interaction and local utilities (pdf export, local storage) to provide quick, personalized itineraries and budgets — all in a privacy-friendly, browser-first demo app.</p>
         </div>
       </div>
     </section>
 
-    <footer style="margin-top:24px;text-align:center;color:var(--muted);padding:12px">
-      Developed by Pooja Nandkumar Salekar • KBP Polytechnic, Satara • Computer Engineering (TYCO) • Internship at IRCT Satara
+    <!-- FEATURES (detailed) -->
+    <section id="features" class="card" aria-labelledby="features-title">
+      <h2 id="features-title" class="section-title">Key Features (Implemented)</h2>
+      <div class="features" style="margin-top:12px">
+        <div class="feature">
+          <i class="fa-solid fa-robot"></i>
+          <div>
+            <h4>AI Travel Assistant</h4>
+            <p>Rule-based assistant generates day-wise plans and answers travel queries (plan, budget, safety, hotels).</p>
+          </div>
+        </div>
+
+        <div class="feature">
+          <i class="fa-solid fa-microphone"></i>
+          <div>
+            <h4>Voice Interaction</h4>
+            <p>Assistant speaks responses using browser SpeechSynthesis for a natural demo experience.</p>
+          </div>
+        </div>
+
+        <div class="feature">
+          <i class="fa-solid fa-calendar-days"></i>
+          <div>
+            <h4>Personalized Itineraries</h4>
+            <p>Generate day-by-day suggestions based on destination and duration, editable by the user.</p>
+          </div>
+        </div>
+
+        <div class="feature">
+          <i class="fa-solid fa-calculator"></i>
+          <div>
+            <h4>Smart Budget Planning</h4>
+            <p>Quick estimates for hotel, food, travel and misc costs to help users plan a realistic budget.</p>
+          </div>
+        </div>
+
+        <div class="feature">
+          <i class="fa-solid fa-hotel"></i>
+          <div>
+            <h4>Basic Hotel Suggestions</h4>
+            <p>Static tiered hotel suggestions (premium/mid/budget) included in assistant replies.</p>
+          </div>
+        </div>
+
+        <div class="feature">
+          <i class="fa-solid fa-save"></i>
+          <div>
+            <h4>Save Trips Locally</h4>
+            <p>Bookings and trips are stored in localStorage so demos remain fast and private.</p>
+          </div>
+        </div>
+
+        <div class="feature">
+          <i class="fa-solid fa-file-pdf"></i>
+          <div>
+            <h4>PDF / Ticket Generation</h4>
+            <p>Download e-tickets using jsPDF (client-side only, no server required).</p>
+          </div>
+        </div>
+
+        <div class="feature">
+          <i class="fa-solid fa-mobile-screen-button"></i>
+          <div>
+            <h4>Responsive Design</h4>
+            <p>Designed to work on phones, tablets and desktops — ideal for recruiter demos on any device.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section id="how" class="card" aria-labelledby="how-title">
+      <h2 id="how-title" class="section-title">How It Works</h2>
+      <p class="small muted">A quick 5-step flow that demonstrates typical user interaction with the system.</p>
+
+      <div class="process" style="margin-top:12px">
+        <div class="step">
+          <div class="num">1</div>
+          <strong>Enter Travel Requirements</strong>
+          <div class="muted small">Destination, dates, budget, people</div>
+        </div>
+
+        <div class="step">
+          <div class="num">2</div>
+          <strong>AI Understands Preferences</strong>
+          <div class="muted small">Rule-based parsing of user intent and constraints</div>
+        </div>
+
+        <div class="step">
+          <div class="num">3</div>
+          <strong>Generate Itinerary</strong>
+          <div class="muted small">Day-wise activities and suggestions</div>
+        </div>
+
+        <div class="step">
+          <div class="num">4</div>
+          <strong>Review Budget</strong>
+          <div class="muted small">Quick budget breakdown of hotel, food, travel and misc</div>
+        </div>
+
+        <div class="step">
+          <div class="num">5</div>
+          <strong>Save / Download / Manage</strong>
+          <div class="muted small">Local save & PDF e-ticket generation for demos</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ARCHITECTURE -->
+    <section id="architecture" class="card" aria-labelledby="arch-title">
+      <h2 id="arch-title" class="section-title">Project Architecture</h2>
+      <p class="small muted">Simple browser-first architecture designed for demos and interviews (no backend required for the demo).</p>
+
+      <div class="arch-wrap" style="margin-top:12px">
+        <!-- Simple visual pipeline using SVG -->
+        <svg width="100%" height="160" viewBox="0 0 1000 160" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Architecture diagram">
+          <defs>
+            <linearGradient id="g1" x1="0" x2="1">
+              <stop offset="0" stop-color="#2563EB"/>
+              <stop offset="1" stop-color="#60A5FA"/>
+            </linearGradient>
+            <filter id="f1" x="-20%" y="-20%" width="140%" height="140%">
+              <feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#0b1220" flood-opacity="0.08"/>
+            </filter>
+          </defs>
+
+          <!-- boxes -->
+          <g filter="url(#f1)" font-family="Poppins, sans-serif">
+            <rect x="10" y="20" width="150" height="80" rx="12" fill="#fff" stroke="rgba(2,6,23,0.04)"></rect>
+            <text x="85" y="52" font-size="13" text-anchor="middle" fill="#07103a" font-weight="700">USER</text>
+
+            <rect x="190" y="20" width="140" height="80" rx="12" fill="#fff" stroke="rgba(2,6,23,0.04)"></rect>
+            <text x="260" y="52" font-size="13" text-anchor="middle" fill="#07103a" font-weight="700">FRONTEND</text>
+
+            <rect x="360" y="20" width="180" height="80" rx="12" fill="#fff" stroke="rgba(2,6,23,0.04)"></rect>
+            <text x="450" y="44" font-size="13" text-anchor="middle" fill="#07103a" font-weight="700">AI TRAVEL ASSISTANT</text>
+            <text x="450" y="60" font-size="11" text-anchor="middle" fill="#6b7280">(Rule-based logic)</text>
+
+            <rect x="560" y="20" width="160" height="80" rx="12" fill="#fff" stroke="rgba(2,6,23,0.04)"></rect>
+            <text x="640" y="52" font-size="13" text-anchor="middle" fill="#07103a" font-weight="700">APPLICATION LOGIC</text>
+
+            <rect x="740" y="20" width="180" height="80" rx="12" fill="#fff" stroke="rgba(2,6,23,0.04)"></rect>
+            <text x="830" y="44" font-size="13" text-anchor="middle" fill="#07103a" font-weight="700">TRAVEL DATA</text>
+            <text x="830" y="60" font-size="11" text-anchor="middle" fill="#6b7280">(local/static)</text>
+          </g>
+
+          <!-- arrows -->
+          <g stroke="url(#g1)" stroke-width="3" stroke-linecap="round" fill="none">
+            <path d="M160 60 H190" />
+            <path d="M330 60 H360" />
+            <path d="M540 60 H560" />
+            <path d="M700 60 H740" />
+          </g>
+        </svg>
+      </div>
+    </section>
+
+    <!-- TECHNOLOGY -->
+    <section id="tech" class="card" aria-labelledby="tech-title">
+      <h2 id="tech-title" class="section-title">Technology Stack (used)</h2>
+      <p class="small muted">Technologies and browser APIs used by the project (demo implementation).</p>
+
+      <div style="margin-top:12px" class="tech-grid">
+        <div class="tech"><i class="fa-brands fa-html5"></i> HTML5</div>
+        <div class="tech"><i class="fa-brands fa-css3-alt"></i> CSS3</div>
+        <div class="tech"><i class="fa-brands fa-js-square"></i> JavaScript (ES6+)</div>
+        <div class="tech"><i class="fa-solid fa-brain"></i> Rule-based AI logic</div>
+        <div class="tech"><i class="fa-solid fa-volume-high"></i> Web Speech API (speechSynthesis)</div>
+        <div class="tech"><i class="fa-solid fa-save"></i> localStorage (Save Trips)</div>
+        <div class="tech"><i class="fa-solid fa-file-pdf"></i> jsPDF (client-side PDF)</div>
+        <div class="tech"><i class="fa-brands fa-github"></i> GitHub Pages (hosting)</div>
+      </div>
+    </section>
+
+    <!-- BENEFITS -->
+    <section id="benefits" class="card" aria-labelledby="ben-title">
+      <h2 id="ben-title" class="section-title">Project Benefits</h2>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px">
+        <div class="feature"><i class="fa-solid fa-stopwatch"></i><div><h4>Save Time</h4><p class="muted">Faster planning with instant suggestions and budget estimates.</p></div></div>
+        <div class="feature"><i class="fa-solid fa-person-dots-from-line"></i><div><h4>Personalized</h4><p class="muted">Plans tailored to duration and preferences provided by user inputs.</p></div></div>
+        <div class="feature"><i class="fa-solid fa-folder"></i><div><h4>Centralized</h4><p class="muted">Itinerary, budget and ticket export in one place for demo workflows.</p></div></div>
+      </div>
+    </section>
+
+    <!-- LIVE DEMO SECTION -->
+    <section id="demo" class="card" aria-labelledby="demo-title">
+      <h2 id="demo-title" class="section-title">Experience the AI Travel Planner</h2>
+      <p class="muted">Try the working application and experience the complete travel planning workflow.</p>
+
+      <div style="display:flex;gap:12px;align-items:center;margin-top:12px">
+        <a class="cta" href="https://psalekar230-coder.github.io/AI/" target="_blank" rel="noopener"><i class="fa-solid fa-rocket"></i> 🚀 Launch Live AI Demo</a>
+        <div class="small muted">Working Application • Interactive Demo — opens in a new tab</div>
+      </div>
+    </section>
+
+    <!-- SCREENSHOTS / DEMO PREVIEW -->
+    <section id="preview" class="card" aria-labelledby="screen-title">
+      <h2 id="screen-title" class="section-title">Preview / Screenshots</h2>
+      <p class="muted">Live preview shown below. If the preview doesn't load due to cross-origin restrictions, click "Launch Live AI Demo".</p>
+
+      <div style="margin-top:12px" class="preview-card">
+        <iframe src="https://psalekar230-coder.github.io/AI/" title="AI Travel Planner live preview"></iframe>
+      </div>
+
+      <div style="margin-top:10px" class="small muted">Captions: "AI Travel Dashboard", "Trip Planning", "Itinerary", "Booking", "My Trips" — you can view the full interactive demo via the Launch button.</div>
+    </section>
+
+    <!-- SECURITY & PRIVACY -->
+    <section id="security" class="card" aria-labelledby="sec-title">
+      <h2 id="sec-title" class="section-title">Security & Privacy</h2>
+      <p class="muted">This demo is browser-first and privacy-friendly. Key notes and recommendations:</p>
+      <ul class="muted" style="margin-top:8px">
+        <li>Protect user information — demo uses localStorage; do not store sensitive secrets there in production.</li>
+        <li>Avoid exposing API keys in frontend code. Move secrets to a backend when integrating real services.</li>
+        <li>Validate and sanitize user input before processing or sending to any API.</li>
+        <li>Use secure database access, authentication and authorization for production systems.</li>
+        <li>In the demo, authentication and payment integrations are not implemented.</li>
+      </ul>
+    </section>
+
+    <!-- FUTURE SCOPE -->
+    <section id="future" class="card" aria-labelledby="future-title">
+      <h2 id="future-title" class="section-title">Future Scope</h2>
+      <p class="muted">Planned enhancements (clearly labeled as future work):</p>
+      <ul class="muted" style="margin-top:8px">
+        <li>Advanced real-time AI recommendations (LLM integration)</li>
+        <li>Real-time weather and transport APIs</li>
+        <li>Payment gateway & booking APIs</li>
+        <li>Multilingual AI assistant and voice recognition</li>
+        <li>Mobile native apps and improved personalization engine</li>
+      </ul>
+    </section>
+
+    <!-- DOCUMENTATION / DOWNLOADS -->
+    <section id="docs" class="card" aria-labelledby="docs-title">
+      <h2 id="docs-title" class="section-title">Project Documentation</h2>
+      <div class="docs-grid" style="margin-top:12px">
+        <a class="doc-card" href="https://github.com/psalekar230-coder/AI-Travel-Planners" target="_blank" rel="noopener">
+          <i class="fa-brands fa-github"></i>
+          <div>
+            <strong>GitHub Repository</strong>
+            <div class="small muted">Source code & hosting</div>
+          </div>
+        </a>
+
+        <!-- Only include docs that exist. Replace href with real docs if available. -->
+        <a class="doc-card" href="https://psalekar230-coder.github.io/AI/" target="_blank" rel="noopener">
+          <i class="fa-solid fa-file-lines"></i>
+          <div>
+            <strong>Live Application</strong>
+            <div class="small muted">Interactive demo (open in new tab)</div>
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <!-- DEVELOPER -->
+    <section id="developer" class="card" aria-labelledby="dev-title">
+      <h2 id="dev-title" class="section-title">Developer</h2>
+      <div style="display:flex;gap:18px;align-items:center;margin-top:12px">
+        <div class="dev-avatar" aria-hidden="true">PN</div>
+        <div>
+          <div style="font-weight:700">Pooja Nandkumar Salekar</div>
+          <div class="muted small">Computer Engineering — KBP Polytechnic, Satara</div>
+          <div class="muted small">Inplant Training — 2026</div>
+          <div style="margin-top:8px" class="socials">
+            <!-- Add links only if valid; GitHub Pages and repo link provided above -->
+            <a class="btn-secondary" href="https://github.com/psalekar230-coder/AI-Travel-Planners" target="_blank" rel="noopener"><i class="fa-brands fa-github"></i> GitHub</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="site-footer" role="contentinfo">
+      <div style="font-weight:700">AI Travel Planner</div>
+      <div class="small" style="margin-top:6px">Smart AI-Based Travel Planning & Itinerary Management System</div>
+      <div class="small" style="margin-top:10px">Developer: Pooja Nandkumar Salekar • © 2026 AI Travel Planner</div>
+      <div style="margin-top:8px"><a href="https://psalekar230-coder.github.io/AI/" target="_blank" rel="noopener" style="color:#fff;text-decoration:underline">Launch Live AI Demo</a> &nbsp; • &nbsp; <a href="https://github.com/psalekar230-coder/AI-Travel-Planners" target="_blank" rel="noopener" style="color:#fff;text-decoration:underline">GitHub</a></div>
     </footer>
   </main>
 
-  <!-- Map modal (kept) -->
-  <div id="mapModal" class="map-modal" role="dialog" aria-hidden="true">
-    <div class="map-box">
-      <div class="map-header">
-        <strong id="mapTitle">Map</strong>
-        <div><button class="btn" onclick="closeMap()">Close</button></div>
-      </div>
-      <iframe id="mapFrame" class="map-iframe" src="" allowfullscreen loading="lazy"></iframe>
-    </div>
-  </div>
-
-  <!-- About modal (kept) -->
-  <div id="aboutModal" class="about-modal" role="dialog" aria-hidden="true">
-    <div class="modal-box" role="document" aria-labelledby="aboutTitle">
-      <!-- about content kept from original file -->
-      <div class="about-header">
-        <div class="avatar-wrap">
-          <img class="avatar" id="aboutAvatar" src='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="240" height="240" viewBox="0 0 240 240"><defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="%230f6cff"/><stop offset="1" stop-color="%234cd3a6"/></linearGradient></defs><rect width="240" height="240" rx="20" fill="url(%23g)"/><text x="50%" y="55%" font-family="Inter, sans-serif" font-size="44" fill="white" font-weight="700" text-anchor="middle" dominant-baseline="middle">P</text></svg>' alt="Pooja">
-          <div class="dev-meta">
-            <div class="name" id="aboutName">Pooja Nandkumar Salekar</div>
-            <div class="meta-muted" id="aboutRole">Project Developer</div>
-            <div class="meta-muted" id="aboutCollege">KBP Polytechnic, Satara • Computer Engineering • TYCO</div>
-            <div class="badges" id="aboutBadges"><div class="badge-pill">Internship: IRCT Satara</div><div class="badge-pill">Guidance: Mahesh Lakade</div></div>
-          </div>
-        </div>
-
-        <div style="text-align:right">
-          <div style="display:flex;gap:8px;align-items:center;justify-content:flex-end">
-            <button class="btn" onclick="enterEditProfile()" style="display:none">Edit Profile</button>
-            <button class="close-plain" onclick="closeAbout()" aria-label="Close About">✕</button>
-          </div>
-          <div class="skill-chips" style="margin-top:10px">
-            <div class="chip">AI Itinerary</div>
-            <div class="chip">PDF Tickets</div>
-            <div class="chip">Maps</div>
-            <div class="chip">LocalStorage Demo</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="about-body">
-        <div class="about-left">
-          <div style="text-align:center;margin-top:10px">
-            <div style="font-weight:800">Contact</div>
-            <div class="meta-muted" id="aboutEmail">pooja@example.com</div>
-            <div style="margin-top:8px">
-              <button class="resume-btn" onclick="downloadResume()" title="Download Resume">Download Resume</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="about-right">
-          <div class="about-tabs" role="tablist" aria-label="About tabs">
-            <button class="tab-btn active" id="tab-about" onclick="switchAboutTab('about')">About</button>
-            <button class="tab-btn" id="tab-howto" onclick="switchAboutTab('howto')">How to Use</button>
-            <button class="tab-btn" id="tab-features" onclick="switchAboutTab('features')">Features</button>
-          </div>
-
-          <div id="tab-content" class="tab-content">
-            <div id="pane-about"></div>
-
-            <div id="pane-howto" style="display:none">
-              <h4 style="margin:8px 0">How to Use in Real Life</h4>
-              <ol class="meta-muted" style="padding-left:18px">
-                <li>Use this prototype to test UX with stakeholders and product owners.</li>
-                <li>Replace localStorage with a backend (API + DB) and add secure authentication.</li>
-                <li>Integrate an LLM (OpenAI/other) to generate dynamic itineraries and chat responses.</li>
-                <li>Integrate a payment gateway for real bookings; sync statuses with provider APIs.</li>
-                <li>Use Firestore (or your DB) to persist user profiles, bookings and support requests across devices.</li>
-              </ol>
-            </div>
-
-            <div id="pane-features" style="display:none">
-              <h4 style="margin:8px 0">Features</h4>
-              <ul class="meta-muted" style="padding-left:18px">
-                <li>Interactive slides with location-specific actions (map, hotels, flights).</li>
-                <li>AI-powered itinerary suggestions (demo outputs).</li>
-                <li>Save trips to My Trips, cancel or mark complete; admin panel to manage bookings.</li>
-                <li>PDF e-ticket generation including a ticket scan image, audio feedback and celebration UI.</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="about-footer">
-        <div class="meta-muted">Live URL: <a id="liveUrlLink" href="#" target="_blank" class="meta-muted"></a></div>
-        <div>
-          <a id="linkedinLink" class="social-btn" href="https://www.linkedin.com/in/pooja-salekar-psai/" target="_blank">LinkedIn</a>
-          <a id="githubLink" class="social-btn" href="https://github.com/psalekar230-coder" target="_blank">GitHub</a>
-          <button class="btn" onclick="closeAbout()">Close</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Login modal (kept) -->
-  <div id="loginModal" class="modal" role="dialog" aria-hidden="true">
-    <div class="modal-box">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <strong>Sign in (demo)</strong>
-        <div><button class="btn" onclick="closeLogin()">Close</button></div>
-      </div>
-      <div style="margin-top:12px">
-        <div class="form-row"><label>Name</label><input id="login_name" placeholder="Your name"></div>
-        <div class="form-row"><label>Email</label><input id="login_email" type="email" placeholder="you@example.com"></div>
-        <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
-          <button class="btn" onclick="closeLogin()">Cancel</button>
-          <button class="btn btn-primary" onclick="login()">Sign In</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- success overlay (kept) -->
-  <div id="successOverlay">
-    <div style="text-align:center;padding:20px">
-      <h1 style="font-size:28px;margin:0">🎉 Thank You!</h1>
-      <p style="margin:6px 0 18px;font-size:18px">Your Ticket is Booked Successfully</p>
-    </div>
-  </div>
-
   <script>
-    if(window.lucide) lucide.createIcons();
+    // Accessibility and light interaction helpers
 
-    // Keys & settings
-    const BOOKINGS_KEY = 'psai_bookings_v6';
-    const SETTINGS_KEY = 'psai_settings_v1';
-    const AUTH_KEY = 'psai_auth_v1';
-
-    let settings = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}');
-    if(typeof settings.muted === 'undefined') settings.muted = false;
-    if(typeof settings.demo === 'undefined') settings.demo = true;
-    localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
-    document.getElementById('demoToggle').innerText = `Demo Mode: ${settings.demo ? 'ON' : 'OFF'}`;
-
-    // Auth helpers (localStorage demo)
-    function loadAuth(){ return JSON.parse(localStorage.getItem(AUTH_KEY) || 'null'); }
-    function saveAuth(u){ localStorage.setItem(AUTH_KEY, JSON.stringify(u)); updateAuthUI(); }
-    function clearAuth(){ localStorage.removeItem(AUTH_KEY); updateAuthUI(); }
-    function updateAuthUI(){
-      const auth = loadAuth();
-      const btn = document.getElementById('authBtn');
-      const label = document.getElementById('userLabel');
-      if(auth && auth.name){
-        btn.innerText = 'Logout';
-        btn.onclick = logout;
-        label.innerText = auth.name;
-        document.getElementById('q_name')?.value = auth.name;
-        document.getElementById('q_email')?.value = auth.email || '';
-      } else {
-        btn.innerText = 'Login';
-        btn.onclick = handleAuthClick;
-        label.innerText = '';
-      }
-    }
-    function handleAuthClick(){ showLogin(); }
-    function showLogin(){ document.getElementById('loginModal').classList.add('show'); document.getElementById('loginModal').setAttribute('aria-hidden','false'); }
-    function closeLogin(){ document.getElementById('loginModal').classList.remove('show'); document.getElementById('loginModal').setAttribute('aria-hidden','true'); }
-    function login(){
-      const name = document.getElementById('login_name').value.trim();
-      const email = document.getElementById('login_email').value.trim();
-      if(!name || !email){ alert('Please enter name and email'); return; }
-      saveAuth({ name, email, loggedAt: new Date().toISOString() });
-      closeLogin();
-      alert('Signed in as ' + name);
-    }
-    function logout(){ if(!confirm('Logout?')) return; clearAuth(); alert('Signed out'); }
-
-    // Demo toggle
-    function toggleDemo(){
-      settings.demo = !settings.demo;
-      localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
-      document.getElementById('demoToggle').innerText = `Demo Mode: ${settings.demo ? 'ON' : 'OFF'}`;
-      alert(`Demo Mode is now ${settings.demo ? 'ON' : 'OFF'}. Demo bookings will be labeled as such.`);
-    }
-
-    function toggleMute(){ settings.muted = !settings.muted; localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); document.getElementById('muteBtn')?.innerText = settings.muted ? '🔇 Muted' : '🔊 Unmute'; }
-    document.getElementById('muteBtn')?.addEventListener?.('click', toggleMute);
-
-    // Update About on load with defaults
-    document.addEventListener('DOMContentLoaded', ()=>{
-      updateAuthUI();
-      renderSlides();
-      if(loadBookings().length === 0){
-        saveBookings([{bookingId:'PSAI'+(Date.now()-1500), name:'Pooja Nandkumar Salekar', email:'pooja@example.com', type:'flight', destination:'Pune → Mumbai', date:new Date(Date.now()+5*24*3600*1000).toISOString().split('T')[0], price:1200, status:'confirmed', createdAt:new Date().toISOString(), demo:true}]);
-      } else {
-        renderTrips();
-      }
-      revealOnScroll();
-      document.getElementById('generateBtn').addEventListener('click', ()=> generateMyTrip());
-      document.getElementById('planAIBtn')?.addEventListener?.('click', ()=> gotoSlide(18));
-      document.getElementById('bookNowBtn')?.addEventListener?.('click', ()=> window.scrollTo({top: document.querySelector('.hero')?.offsetTop + 40 || 0, behavior:'smooth'}));
-      setTimeout(()=>{ if(!settings.muted) speakText("Hello! Tumcha Pooja AI Travel Planners madhe swagat aahe. Welcome!", 'hi-IN'); }, 800);
-      updateMiniTrips();
+    // Ensure all "launch demo" links open in a new tab (already set), but add click tracking behavior
+    document.querySelectorAll('a[href="https://psalekar230-coder.github.io/AI/"]').forEach(a => {
+      a.addEventListener('click', (e) => {
+        // Open is already handled by target=_blank; keep this for potential analytics hooks
+        // No-op: placeholder for future tracking
+      });
     });
 
-    /* -------------------------
-       Existing storage and slide helpers (kept)
-       ------------------------- */
-    function loadBookings(){ return JSON.parse(localStorage.getItem(BOOKINGS_KEY) || '[]'); }
-    function saveBookings(arr){ localStorage.setItem(BOOKINGS_KEY, JSON.stringify(arr)); renderTrips(); renderAdmin(); updateProgress(); updateMiniTrips(); }
-    function generateBookingId(){ return 'PSAI' + Date.now(); }
-
-    // (Existing slides array and samples kept here)
-    const slides = [
-      {id:1,title:'Welcome to Goa',subtitle:'Intro to PS AI Travel',city:'Goa',img:'https://picsum.photos/seed/slide1/1400/800'},
-      {id:2,title:'Top Beaches of Goa',subtitle:'Beaches & Sunsets',city:'Goa',img:'https://picsum.photos/seed/slide2/1400/800'},
-      {id:3,title:'Manali Hills',subtitle:'Cool escapes',city:'Manali',img:'https://picsum.photos/seed/slide3/1400/800'},
-      {id:4,title:'Varanasi Heritage',subtitle:'Heritage & temples',city:'Varanasi',img:'https://picsum.photos/seed/slide4/1400/800'},
-      {id:5,title:'Kolkata Food Guide',subtitle:'Local cuisine tips',city:'Kolkata',img:'https://picsum.photos/seed/slide5/1400/800'},
-      {id:6,title:'Rishikesh Adventure',subtitle:'Trekking & rafting',city:'Rishikesh',img:'https://picsum.photos/seed/slide6/1400/800'},
-      {id:7,title:'Ooty Family Trips',subtitle:'Kid-friendly ideas',city:'Ooty',img:'https://picsum.photos/seed/slide7/1400/800'},
-      {id:8,title:'Shimla Romantic Getaways',subtitle:'Couple specials',city:'Shimla',img:'https://picsum.photos/seed/slide8/1400/800'},
-      {id:9,title:'Pune Budget Travel',subtitle:'Save money tips',city:'Pune',img:'https://picsum.photos/seed/slide9/1400/800'},
-      {id:10,title:'Mumbai Luxury Stays',subtitle:'Top hotels',city:'Mumbai',img:'https://picsum.photos/seed/slide10/1400/800'},
-      {id:11,title:'Delhi Transport Guide',subtitle:'Buses, cabs & trains',city:'Delhi',img:'https://picsum.photos/seed/slide11/1400/800'},
-      {id:12,title:'Ladakh Packing Tips',subtitle:'What to bring',city:'Ladakh',img:'https://picsum.photos/seed/slide12/1400/800'},
-      {id:13,title:'Manali Safety Tips',subtitle:'Travel safely',city:'Manali',img:'https://picsum.photos/seed/slide13/1400/800'},
-      {id:14,title:'Goa Budget Planner',subtitle:'Estimate costs',city:'Goa',img:'https://picsum.photos/seed/slide14/1400/800'},
-      {id:15,title:'Jaipur Festivals',subtitle:'Local events & time',city:'Jaipur',img:'https://picsum.photos/seed/slide15/1400/800'},
-      {id:16,title:'Udaipur Photography',subtitle:'Best photo spots',city:'Udaipur',img:'https://picsum.photos/seed/slide16/1400/800'},
-      {id:17,title:'Rajasthan Group Deals',subtitle:'Discount ideas',city:'Rajasthan',img:'https://picsum.photos/seed/slide17/1400/800'},
-      {id:18,title:'Kerala Itinerary Builder',subtitle:'Auto-generate plans',city:'Kerala',img:'https://picsum.photos/seed/slide18/1400/800'},
-      {id:19,title:'Pune User Feedback',subtitle:'Collect reviews',city:'Pune',img:'https://picsum.photos/seed/slide19/1400/800'},
-      {id:20,title:'Satara Thank You',subtitle:'Credits & Contact',city:'Satara',img:'https://picsum.photos/seed/slide20/1400/800'}
-    ];
-
-    const hotelSamples = [{name:'Taj Exotica',price:15000,stars:5,link:'https://www.booking.com'},{name:'Radisson Blu',price:8000,stars:4,link:'https://www.booking.com'},{name:'Zostel Hostel',price:1500,stars:3,link:'https://www.hostelworld.com'}];
-    const flightSamples = [{airline:'IndiGo',price:4500,duration:'1h 20m',link:'https://www.makemytrip.com/flights/'},{airline:'Air India',price:5200,duration:'1h 35m',link:'https://www.makemytrip.com/flights/'},{airline:'SpiceJet',price:4300,duration:'1h 25m',link:'https://www.skyscanner.co.in'}];
-
-    const attractions = {
-      'Goa':['Baga Beach','Fort Aguada','Dudhsagar Falls'],
-      'Manali':['Solang Valley','Hadimba Temple','Old Manali'],
-      'Varanasi':['Ganga Aarti','Kashi Vishwanath','Sarnath'],
-      'Kolkata':['Park Street','Victoria Memorial','Dakshineswar Temple'],
-      'Rishikesh':['Lakshman Jhula','Ram Jhula','Ganga Beach'],
-      'Ooty':['Botanical Gardens','Ooty Lake','Doddabetta Peak'],
-      'Shimla':['Mall Road','The Ridge','Jakhoo Temple'],
-      'Pune':['Shaniwar Wada','Aga Khan Palace','Sinhagad Fort'],
-      'Mumbai':['Gateway of India','Marine Drive','Elephanta Caves'],
-      'Delhi':['Red Fort','Qutub Minar','India Gate'],
-      'Ladakh':['Pangong Lake','Nubra Valley','Leh Palace'],
-      'Jaipur':['Hawa Mahal','Amber Fort','City Palace'],
-      'Udaipur':['Lake Pichola','City Palace','Jagdish Temple'],
-      'Rajasthan':['Jaisalmer Fort','Mehrangarh','Pushkar'],
-      'Kerala':['Alleppey Backwaters','Munnar','Kovalam'],
-      'Satara':['Thoseghar Falls','Kaas Plateau','Sajjangad']
-    };
-
-    // helpers
-    function make(tag,cls,txt){ const e=document.createElement(tag); e.className=cls; if(txt) e.innerText=txt; return e; }
-    function escapeAttr(s){ return (s||'').replace(/"/g,'&quot;'); }
-    function openExternal(url){ window.open(url,'_blank'); }
-    function openMapModal(city){
-      if(!city) city='India';
-      const frame = document.getElementById('mapFrame');
-      const q = encodeURIComponent(city);
-      frame.src = `https://www.google.com/maps?q=${q}&output=embed`;
-      document.getElementById('mapTitle').innerText = `Map: ${city}`;
-      document.getElementById('mapModal').classList.add('show'); document.getElementById('mapModal').setAttribute('aria-hidden','false');
-    }
-    function closeMap(){ document.getElementById('mapFrame').src=''; document.getElementById('mapModal').classList.remove('show'); document.getElementById('mapModal').setAttribute('aria-hidden','true'); }
-
-    /* -------------------------
-       Slide rendering + Save Trip + map + auto output (kept)
-       ------------------------- */
-    const slidesContainer = document.getElementById('slidesContainer');
-    const slidesNav = document.getElementById('slidesNav');
-    const progBar = document.getElementById('progBar');
-    let current = 1;
-
-    function renderSlides(){
-      if(!slidesContainer) return;
-      slidesContainer.innerHTML = ''; slidesNav.innerHTML = '';
-      slides.forEach(s=>{
-        const el = document.createElement('section'); el.className='slide'; el.id='slide-'+s.id;
-        el.innerHTML = `
-          <div class="slide-grid">
-            <div>
-              <div class="card">
-                <h2 style="margin:0">${escapeHtml(s.title)}</h2>
-                <div class="muted-small" style="margin-top:6px">${escapeHtml(s.subtitle)}</div>
-                <img class="big-image" src="${s.img}" alt="${escapeHtml(s.title)}">
-                <p style="margin-top:10px">Explore <strong>${escapeHtml(s.city)}</strong>. Use actions to view map, hotels, flights or generate itinerary.</p>
-                <div class="slide-actions" id="actions-${s.id}"></div>
-              </div>
-
-              <div style="margin-top:10px" class="card">
-                <strong>Output Panel</strong>
-                <div id="output-${s.id}" class="muted-small" style="margin-top:8px">Click a button to generate output for this slide.</div>
-              </div>
-            </div>
-
-            <aside class="card">
-              <strong>Map & Quick Links</strong>
-              <div style="margin-top:8px" id="aside-${s.id}">
-                <iframe class="mini-map" src="https://www.google.com/maps?q=${encodeURIComponent(s.city)}&output=embed" loading="lazy"></iframe>
-                <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
-                  <button class="btn" onclick="openMapModal('${escapeAttr(s.city)}')">Open Full Map</button>
-                  <button class="btn" onclick="openExternal('https://www.booking.com')">Hotels</button>
-                  <button class="btn" onclick="openExternal('https://www.google.com/travel')">Google Travel</button>
-                </div>
-              </div>
-            </aside>
-          </div>
-        `;
-        slidesContainer.appendChild(el);
-
-        const thumb = document.createElement('div'); thumb.className='thumb'; thumb.innerText = `${s.id}. ${s.title}`; thumb.onclick = ()=> gotoSlide(s.id);
-        slidesNav.appendChild(thumb);
-
-        addSlideButtons(s);
-      });
-      gotoSlide(1);
-      revealOnScroll();
-    }
-
-    function addSlideButtons(s){
-      const container = document.getElementById('actions-'+s.id);
-      if(!container) return;
-      container.innerHTML = '';
-      const aiBtn = make('button','btn btn-primary','AI Suggest'); aiBtn.onclick = ()=> showOutput(s.id, `<strong>AI Suggestion:</strong> ${aiSuggest(s)}`); container.appendChild(aiBtn);
-      const randBtn = make('button','btn','Random Tip'); randBtn.onclick = ()=> showOutput(s.id, randomOutput(s)); container.appendChild(randBtn);
-      const hBtn = make('button','btn','Find Hotels'); hBtn.onclick = ()=> displayHotelsInSlide(s); container.appendChild(hBtn);
-      const fBtn = make('button','btn','Search Flights'); fBtn.onclick = ()=> displayFlightsInSlide(s); container.appendChild(fBtn);
-      const itBtn = make('button','btn','Generate Itinerary'); itBtn.onclick = ()=> showOutput(s.id, formatItinerary(generateItinerary(s))); container.appendChild(itBtn);
-      const mapBtn = make('button','btn','Open Map'); mapBtn.onclick = ()=> openMapModal(s.city); container.appendChild(mapBtn);
-      const saveBtn = make('button','btn','Save Trip'); saveBtn.onclick = ()=> saveTrip(s.id); container.appendChild(saveBtn);
-      const bookBtn = make('button','btn btn-accent','Quick Book'); bookBtn.onclick = ()=> { document.getElementById('q_dest').value = s.city; window.scrollTo({top:0,behavior:'smooth'}); }; container.appendChild(bookBtn);
-    }
-
-    function populateSlideOutput(slide){
-      const out = document.getElementById('output-'+slide.id);
-      if(!out) return;
-      out.innerHTML = '';
-      const heading = document.createElement('div'); heading.innerHTML = `<strong>${escapeHtml(slide.title)}</strong> — ${escapeHtml(slide.city)}`; out.appendChild(heading);
-
-      const ats = attractions[slide.city] || [`Top sights in ${slide.city}`];
-      const aList = document.createElement('div'); aList.style.marginTop='8px';
-      aList.innerHTML = `<em>Top attractions:</em> ${ats.map(a=>escapeHtml(a)).join(' • ')}`;
-      out.appendChild(aList);
-
-      const itin = generateItinerary(slide);
-      out.appendChild(document.createElement('hr'));
-      out.appendChild(makeItineraryElement(itin));
-
-      const hf = document.createElement('div'); hf.style.marginTop='8px';
-      hf.innerHTML = `<strong>Samples</strong>`;
-      const hotelsPreview = document.createElement('div'); hotelsPreview.style.marginTop='6px';
-      hotelSamples.slice(0,2).forEach(h=>{ const d = document.createElement('div'); d.innerHTML = `${escapeHtml(h.name)} • ₹${h.price}`; hotelsPreview.appendChild(d); });
-      const flightsPreview = document.createElement('div'); flightsPreview.style.marginTop='6px';
-      flightSamples.slice(0,2).forEach(f=>{ const d = document.createElement('div'); d.innerHTML = `${escapeHtml(f.airline)} • ₹${f.price}`; flightsPreview.appendChild(d); });
-      hf.appendChild(hotelsPreview); hf.appendChild(flightsPreview);
-      out.appendChild(hf);
-
-      const imgWrap = document.createElement('div'); imgWrap.style.marginTop='10px';
-      const scanUrl = `https://picsum.photos/seed/ticket${slide.id}/600/180`;
-      const img = document.createElement('img'); img.src = scanUrl; img.alt = 'Ticket scan preview'; img.style.width='100%'; img.style.borderRadius='8px';
-      imgWrap.appendChild(document.createTextNode('Ticket scan preview:')); imgWrap.appendChild(img);
-      out.appendChild(imgWrap);
-    }
-
-    function makeItineraryElement(it){
-      const container = document.createElement('div'); container.style.marginTop='8px';
-      it.forEach(i=>{ const d = document.createElement('div'); d.style.marginBottom='6px'; d.innerHTML = `<strong>Day ${i.day}:</strong> ${escapeHtml(i.title)}<div class="muted" style="margin-top:4px">${escapeHtml(i.notes)}</div>`; container.appendChild(d); });
-      return container;
-    }
-
-    function saveTrip(slideId){
-      const s = slides.find(x=>x.id === slideId);
-      if(!s) return;
-      const auth = loadAuth();
-      const booking = {
-        bookingId: generateBookingId(),
-        name: auth && auth.name ? auth.name : 'Pooja Nandkumar Salekar',
-        email: auth && auth.email ? auth.email : 'pooja@example.com',
-        type: 'trip',
-        destination: s.city,
-        date: new Date().toISOString().split('T')[0],
-        price: 0,
-        status: 'saved',
-        createdAt: new Date().toISOString(),
-        demo: settings.demo
-      };
-      const arr = loadBookings();
-      arr.push(booking);
-      saveBookings(arr);
-      if (typeof saveBookingToFirebase === 'function') {
-        saveBookingToFirebase(booking).catch(()=>{/* ignore firebase errors for demo */});
+    // Simple smooth highlight on scroll for nav links
+    const navLinks = Array.from(document.querySelectorAll('nav.main-nav a[href^="#"]'));
+    function onScroll() {
+      const top = window.scrollY + 120;
+      let current = null;
+      for (const link of navLinks) {
+        const id = link.getAttribute('href').slice(1);
+        const el = document.getElementById(id);
+        if (!el) continue;
+        if (el.offsetTop <= top) current = link;
       }
-      alert('Trip saved to My Trips (Demo label applied if demo mode).');
-    }
-
-    function aiSuggest(slide){ const tips = [`Best time to visit ${slide.city}: Nov-Feb.`,`Approx budget for 3 days in ${slide.city}: ₹${(Math.random()*22000+4000).toFixed(0)}`,`Top attraction: ${['Old Fort','Sunset Beach','Hill View','Tea Garden'][rand(0,3)]}`]; return tips[rand(0,tips.length-1)]; }
-    function randomOutput(slide){ const outs = [`Local tip: haggle at the market for souvenirs.`,`Hidden gem: small cafe near the viewpoint.`,`Money-saving tip: use local trains for short hauls.`]; return outs[rand(0,outs.length-1)]; }
-    function rand(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
-    function showOutput(id, html){ const o = document.getElementById('output-'+id); if(o) o.innerHTML = (typeof html === 'string' ? html : html); }
-
-    function displayHotelsInSlide(slide){
-      const out = document.getElementById('output-'+slide.id);
-      out.innerHTML = '';
-      const title = document.createElement('div'); title.innerHTML = `<strong>Hotels near ${escapeHtml(slide.city)}</strong>`; out.appendChild(title);
-      const wrap = document.createElement('div'); wrap.style.marginTop = '8px';
-      hotelSamples.forEach(h => {
-        const card = document.createElement('div');
-        card.style.marginBottom = '8px'; card.style.padding = '8px'; card.style.borderRadius = '8px'; card.style.background = '#fff';
-        card.innerHTML = `<strong>${escapeHtml(h.name)}</strong> • ₹${escapeHtml(String(h.price))} • ${escapeHtml(String(h.stars))}★`;
-        const btnRow = document.createElement('div'); btnRow.style.marginTop = '6px';
-        const viewBtn = make('button','btn','View'); viewBtn.onclick = ()=> openExternal(h.link);
-        const bookBtn = make('button','btn btn-accent','Book'); bookBtn.onclick = ()=> saveBookingQuick('hotel',h.name,h.price,slide.city);
-        btnRow.appendChild(viewBtn); btnRow.appendChild(document.createTextNode(' ')); btnRow.appendChild(bookBtn);
-        card.appendChild(btnRow);
-        wrap.appendChild(card);
-      });
-      out.appendChild(wrap);
-    }
-
-    function displayFlightsInSlide(slide){
-      const out = document.getElementById('output-'+slide.id);
-      out.innerHTML = '';
-      const title = document.createElement('div'); title.innerHTML = `<strong>Flights to ${escapeHtml(slide.city)}</strong>`; out.appendChild(title);
-      const wrap = document.createElement('div'); wrap.style.marginTop = '8px';
-      flightSamples.forEach(f => {
-        const card = document.createElement('div');
-        card.style.marginBottom = '8px'; card.style.padding = '8px'; card.style.borderRadius = '8px'; card.style.background = '#f0fff4';
-        card.innerHTML = `<strong>${escapeHtml(f.airline)}</strong> • ₹${escapeHtml(String(f.price))} • ${escapeHtml(f.duration)}`;
-        const btnRow = document.createElement('div'); btnRow.style.marginTop = '6px';
-        const viewBtn = make('button','btn','View'); viewBtn.onclick = ()=> openExternal(f.link);
-        const bookBtn = make('button','btn btn-accent','Book'); bookBtn.onclick = ()=> saveBookingQuick('flight',f.airline,f.price,slide.city);
-        btnRow.appendChild(viewBtn); btnRow.appendChild(document.createTextNode(' ')); btnRow.appendChild(bookBtn);
-        card.appendChild(btnRow);
-        wrap.appendChild(card);
-      });
-      out.appendChild(wrap);
-    }
-
-    function saveBookingQuick(type,name,price,dest){
-      const auth = loadAuth();
-      document.getElementById('q_name')?.value = (auth && auth.name) ? auth.name : 'Pooja Nandkumar Salekar';
-      document.getElementById('q_email')?.value = (auth && auth.email) ? auth.email : 'pooja@example.com';
-      document.getElementById('q_type')?.value = type;
-      document.getElementById('q_dest')?.value = dest;
-      document.getElementById('q_price')?.value = price;
-      document.getElementById('q_date')?.value = new Date(Date.now()+3*24*3600*1000).toISOString().split('T')[0];
-      confirmBookingFromQuick();
-    }
-
-    // slide navigation
-    function gotoSlide(n){ if(n<1) n=1; if(n>slides.length) n=slides.length; current=n; document.querySelectorAll('.slide').forEach(s=>s.classList.remove('active')); const el=document.getElementById('slide-'+n); if(el) el.classList.add('active'); updateProgress(); populateSlideOutput(slides[n-1] || slides[0]); }
-    function updateProgress(){ const p=Math.round((current/slides.length)*100); progBar.style.width = p+'%'; }
-
-    // itinerary generator (kept simple demo but extended for form inputs)
-    function generateItinerary(slide){
-      return [
-        {day:1,title:`Arrive in ${slide.city}`,notes:`Check-in, relax, visit local market.`},
-        {day:2,title:`Explore top sights in ${slide.city}`,notes:`Guided tour, sunset viewpoint.`},
-        {day:3,title:`Relax & depart`,notes:`Leisure morning, checkout.`}
-      ];
-    }
-    function formatItinerary(it){ let html='<div style="margin-top:8px">'; it.forEach(i=>{ html += `<div style="margin-bottom:8px"><strong>Day ${i.day}:</strong> ${escapeHtml(i.title)}<div class="muted" style="margin-top:4px">${escapeHtml(i.notes)}</div></div>`; }); html += '</div>'; return html; }
-
-    // reveal on scroll
-    function revealOnScroll(){
-      const els = document.querySelectorAll('.reveal');
-      const io = new IntersectionObserver((entries)=>{ entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('show'); io.unobserve(e.target); } }); }, {threshold:0.12});
-      els.forEach(el=> io.observe(el));
-    }
-
-    /* -------------------------
-       Booking flow & PDF (kept, with demo labeling)
-       ------------------------- */
-    async function confirmBookingFromQuick(){
-      const auth = loadAuth();
-      if(!auth || !auth.name){
-        if(!confirm('You must sign in before booking. Sign in now?')) return;
-        showLogin();
-        return;
-      }
-      const name = document.getElementById('q_name').value.trim();
-      const email = document.getElementById('q_email').value.trim();
-      const type = document.getElementById('q_type').value;
-      const dest = document.getElementById('q_dest').value.trim();
-      const date = document.getElementById('q_date').value;
-      const price = parseInt(document.getElementById('q_price').value || 0, 10);
-      if(!name || !email || !dest || !date){ alert('Please fill name, email, destination and date'); return; }
-      const booking = { bookingId: generateBookingId(), name, email, type, destination: dest, date, price, status:'confirmed', createdAt: new Date().toISOString(), demo: settings.demo };
-      const arr = loadBookings(); arr.push(booking); saveBookings(arr);
-
-      await celebrateBooking(booking);
-      await createTicketPDF(booking); // now supports embedding a ticket scan image
-
-      if (typeof saveBookingToFirebase === 'function') {
-        try {
-          await saveBookingToFirebase(booking);
-          console.log('Booking synced to Firestore (best-effort).');
-        } catch(err) {
-          console.warn('Firestore save failed (kept local):', err);
-        }
-      }
-
-      alert('Booking confirmed & ticket downloaded. Demo bookings are labeled as demo.');
-    }
-
-    function autoFillQuick(){
-      const auth = loadAuth();
-      document.getElementById('q_name').value = (auth && auth.name) ? auth.name : 'Pooja Nandkumar Salekar';
-      document.getElementById('q_email').value = (auth && auth.email) ? auth.email : 'pooja@example.com';
-      document.getElementById('q_type').value = 'flight';
-      document.getElementById('q_dest').value = 'Goa';
-      document.getElementById('q_price').value = 4599;
-      document.getElementById('q_date').value = new Date(Date.now()+7*24*3600*1000).toISOString().split('T')[0];
-    }
-
-    // renderTrips (keeps behavior)
-    function renderTrips(){
-      document.getElementById('tripsSection').style.display='block';
-      const active=document.querySelector('.tab.active')?document.querySelector('.tab.active').dataset.tab:'upcoming';
-      const list=document.getElementById('tripsList'); list.innerHTML='';
-      const arr=loadBookings().slice().reverse();
-      const filtered=arr.filter(b=>{
-        if(active==='upcoming') return b.status==='confirmed'||b.status==='pending'||b.status==='saved';
-        if(active==='completed') return b.status==='completed';
-        if(active==='cancelled') return b.status==='cancelled'; return true;
-      });
-      if(filtered.length===0){ list.innerHTML='<div class="muted">No bookings to show.</div>'; return; }
-      filtered.forEach(b=>{
-        const card=document.createElement('div'); card.className='trip-card card';
-        const statusClass = b.status==='confirmed'?'green':(b.status==='saved'?'yellow':(b.status==='completed'?'green':'red'));
-        const statusLabel = (b.status || 'CONFIRMED').toUpperCase();
-        const demoLabel = b.demo ? '<div class="small-muted" style="margin-top:6px">Demo Booking</div>' : '';
-        card.innerHTML=`
-          <div style="display:flex;justify-content:space-between;align-items:flex-start">
-            <div>
-              <div style="font-weight:800">${escapeHtml(b.destination)}</div>
-              <div class="small muted" style="margin-top:6px">${escapeHtml(b.type)} • ${escapeHtml(b.name)}</div>
-              <div class="small muted" style="margin-top:6px">Date: ${escapeHtml(b.date)}</div>
-              ${demoLabel}
-            </div>
-            <div style="text-align:right">
-              <div class="badge ${statusClass}" id="badge-${b.bookingId}">${statusLabel}</div>
-              <div style="margin-top:10px;font-weight:800">₹${b.price||0}</div>
-            </div>
-          </div>
-          <div style="margin-top:8px;display:flex;gap:8px">
-            <button class="btn" onclick="downloadPDF('${b.bookingId}')">Download PDF</button>
-            ${b.status!=='cancelled' ? `<button class="btn" onclick="markComplete('${b.bookingId}')">Mark Complete</button>` : ''}
-            ${b.status!=='cancelled' ? `<button class="btn" onclick="cancelBooking('${b.bookingId}')">Cancel Booking</button>` : ''}
-            <button class="btn" onclick="deleteBooking('${b.bookingId}')">Delete</button>
-          </div>
-        `;
-        list.appendChild(card);
-      });
-    }
-
-    function deleteBooking(id){ if(!confirm('Delete booking permanently?')) return; const arr = loadBookings().filter(b=>b.bookingId!==id); saveBookings(arr); }
-
-    function switchTripTab(e){ document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active')); e.currentTarget.classList.add('active'); renderTrips(); }
-    function cancelBooking(id){ if(!confirm('Cancel this booking?')) return; const arr=loadBookings().map(b=>b.bookingId===id?{...b,status:'cancelled'}:b); saveBookings(arr); }
-    function markComplete(id){ if(!confirm('Mark this trip as complete?')) return; const arr=loadBookings().map(b=>b.bookingId===id?{...b,status:'completed'}:b); saveBookings(arr); }
-    function downloadPDF(id){ const b=loadBookings().find(x=>x.bookingId===id); if(b) createTicketPDF(b); else alert('Booking not found'); }
-
-    /* Generate PDF with added "ticket scan" image (kept) */
-    async function createTicketPDF(booking){
-      try{
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF({unit:'pt', format:'a4'});
-        doc.setFillColor(245,250,255); doc.rect(0,0,doc.internal.pageSize.getWidth(),120,'F');
-        doc.setFontSize(18); doc.setTextColor(20); doc.text('E-TICKET — PS AI Travel', 40, 50);
-        doc.setFontSize(12);
-        let y=130;
-        doc.text(`PNR: ${booking.bookingId}`,40,y); y+=18;
-        doc.text(`Passenger: ${booking.name}`,40,y); y+=18;
-        doc.text(`Email: ${booking.email}`,40,y); y+=18;
-        doc.text(`Type: ${booking.type}`,40,y); y+=18;
-        doc.text(`Destination: ${booking.destination}`,40,y); y+=18;
-        doc.text(`Date: ${booking.date}`,40,y); y+=18;
-        doc.text(`Price: ₹${booking.price||0}`,40,y);
-        doc.setDrawColor(200); doc.rect(420,140,140,140);
-        doc.setFontSize(8); doc.text(`PNR:${booking.bookingId}`,426,260);
-
-        const scanUrl = `https://picsum.photos/seed/ticket${booking.bookingId % 1000}/600/200`;
-        try {
-          const dataUrl = await fetchImageAsDataURL(scanUrl);
-          const marginLeft = 40;
-          const imgW = doc.internal.pageSize.getWidth() - marginLeft*2;
-          const imgH = 140;
-          doc.addImage(dataUrl, 'JPEG', marginLeft, 330, imgW, imgH);
-        } catch (imgErr) {
-          console.warn('Could not fetch/embed ticket scan image:', imgErr);
-        }
-
-        doc.save(`PSAI_${booking.bookingId}.pdf`);
-      }catch(e){ console.error(e); alert('PDF error'); }
-    }
-
-    async function fetchImageAsDataURL(url){
-      const resp = await fetch(url, {mode:'cors'});
-      if(!resp.ok) throw new Error('Network response not ok');
-      const blob = await resp.blob();
-      return await new Promise((res, rej)=>{
-        const fr = new FileReader();
-        fr.onload = ()=> res(fr.result);
-        fr.onerror = (e)=> rej(e);
-        fr.readAsDataURL(blob);
-      });
-    }
-
-    /* Celebration (kept) */
-    async function celebrateBooking(booking){
-      const overlay = document.getElementById('successOverlay'); overlay.style.display='flex';
-      const colors=['#ff6b6b','#ffb86b','#ffd36b','#6be4ff','#6be7a6','#a96bff','#ff6fb3'];
-      const created=[];
-      for(let i=0;i<25;i++){ const b=document.createElement('div'); b.style.position='absolute'; b.style.bottom='-120px'; b.style.left=(5+Math.random()*90)+'%'; b.style.width=(24+Math.random()*26)+'px'; b.style.height=(34+Math.random()*40)+'px'; b.style.background = colors[Math.floor(Math.random()*colors.length)]; b.style.borderRadius='20px'; b.style.opacity='0.95'; b.style.transition='all 4s linear'; overlay.appendChild(b); created.push(b); setTimeout(()=>{ b.style.bottom='110%'; b.style.transform = `translateY(-120%) rotate(${Math.random()*360}deg)`; b.style.opacity='1'; }, 100 + Math.random()*400); }
-      for(let i=0;i<60;i++){ const c=document.createElement('div'); c.style.position='absolute'; c.style.left=(Math.random()*100)+'%'; c.style.top=(Math.random()*40)+'%'; c.style.width='8px'; c.style.height='12px'; c.style.background = colors[Math.floor(Math.random()*colors.length)]; c.style.borderRadius='2px'; c.style.transition='all 3s linear'; overlay.appendChild(c); created.push(c); setTimeout(()=>{ c.style.top='120%'; c.style.opacity='0'; }, 100 + Math.random()*600); }
-      if(!settings.muted) playSuccessTone();
-      if(!settings.muted) speakText('Thank you! Tumchi ticket book zali aahe','hi-IN');
-      await new Promise(r=>setTimeout(r,4000));
-      overlay.style.display='none'; created.forEach(e=>e.remove());
-    }
-
-    function playSuccessTone(){ try{ const ctx=new (window.AudioContext||window.webkitAudioContext)(); const o=ctx.createOscillator(); const g=ctx.createGain(); o.type='sine'; o.connect(g); g.connect(ctx.destination); o.frequency.setValueAtTime(880, ctx.currentTime); g.gain.setValueAtTime(0.0001, ctx.currentTime); g.gain.exponentialRampToValueAtTime(0.12, ctx.currentTime + 0.02); o.start(); o.frequency.exponentialRampToValueAtTime(660, ctx.currentTime + 0.15); g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.5); setTimeout(()=>{ o.stop(); ctx.close(); },700); }catch(e){} }
-    function speakText(text,lang='hi-IN'){ if(settings.muted) return; if(!('speechSynthesis' in window)) return; const u=new SpeechSynthesisUtterance(text); u.lang=lang; u.rate=1; u.pitch=1; window.speechSynthesis.cancel(); window.speechSynthesis.speak(u); }
-
-    /* Admin (kept) */
-    function openAdmin(){ const pw = prompt('Admin password (demo):','admin123'); if(pw !== 'admin123'){ alert('Invalid password'); return; } document.getElementById('adminSection').style.display='block'; renderAdmin(); }
-    function closeAdmin(){ document.getElementById('adminSection').style.display='none'; }
-    function renderAdmin(){ const arr = loadBookings().slice().reverse(); const content = document.getElementById('adminContent'); if(arr.length===0){ content.innerHTML='<div class="small-muted">No bookings</div>'; document.getElementById('adminSummary').innerText=''; return; } content.innerHTML='<div style="display:grid;gap:8px">'+arr.map(b=>`<div style="padding:8px;border-radius:10px;background:#fff;display:flex;justify-content:space-between"><div><strong>${escapeHtml(b.destination)}</strong><div class="small-muted">${escapeHtml(b.date)} • ${escapeHtml(b.name)}</div><div class="small-muted">Status: ${escapeHtml(b.status)}</div></div><div style="text-align:right"><div style="font-weight:800">₹${b.price||0}</div><div style="margin-top:6px"><button class="btn" onclick="downloadPDF('${b.bookingId}')">PDF</button><button class="btn" onclick="adminDelete('${b.bookingId}')">Delete</button></div></div></div>`).join('')+'</div>'; const total = arr.reduce((s,a)=>s+(parseFloat(a.price)||0),0); document.getElementById('adminSummary').innerText=`Total bookings: ${arr.length} — Total revenue: ₹${total}`; }
-    function adminDelete(id){ if(!confirm('Delete booking?')) return; const arr = loadBookings().filter(b=>b.bookingId!==id); saveBookings(arr); renderAdmin(); }
-
-    // utility: scroll to section
-    function scrollToSection(id){ const el=document.getElementById(id); if(el) window.scrollTo({top: el.offsetTop - 10, behavior:'smooth'}); }
-
-    /* -------------------------
-       NEW: AI Trip generation flow (local demo implementation)
-       - Validates inputs, shows staged loading UI, generates itinerary & budget,
-       - Renders itinerary cards and budget breakdown.
-       - Does NOT call any external AI by default; placeholder provided for secure server integration.
-       ------------------------- */
-    function autoFillPlanner(){
-      document.getElementById('destInput').value = 'Goa';
-      document.getElementById('daysInput').value = 3;
-      document.getElementById('dateInput').value = new Date(Date.now()+7*24*3600*1000).toISOString().split('T')[0];
-      document.getElementById('travellersInput').value = 2;
-      document.getElementById('budgetInput').value = 15000;
-      document.getElementById('styleInput').value = 'Standard';
-      const checks = document.querySelectorAll('#interestsWrap input[type=checkbox]');
-      checks.forEach(c=>{ c.checked = ['Nature','Food','Beaches'].includes(c.value); });
-    }
-
-    function collectPlannerInputs(){
-      const dest = (document.getElementById('destInput').value || '').trim();
-      const days = parseInt(document.getElementById('daysInput').value || 0, 10);
-      const date = document.getElementById('dateInput').value;
-      const travellers = parseInt(document.getElementById('travellersInput').value || 1, 10);
-      const budget = parseFloat(document.getElementById('budgetInput').value || 0);
-      const style = document.getElementById('styleInput').value;
-      const interests = Array.from(document.querySelectorAll('#interestsWrap input[type=checkbox]:checked')).map(i=>i.value);
-      return { dest, days, date, travellers, budget, style, interests };
-    }
-
-    function validatePlannerInputs(data){
-      if(!data.dest) return 'Please enter a destination.';
-      if(!data.date) return 'Please select a travel date.';
-      if(isNaN(data.days) || data.days < 1) return 'Number of days must be at least 1.';
-      if(isNaN(data.travellers) || data.travellers < 1) return 'Number of travelers must be at least 1.';
-      if(isNaN(data.budget) || data.budget < 0) return 'Please enter a valid budget (zero or more).';
-      return null;
-    }
-
-    async function generateMyTrip(){
-      const btn = document.getElementById('generateBtn');
-      if(btn) btn.disabled = true;
-      try{
-        const form = collectPlannerInputs();
-        const err = validatePlannerInputs(form);
-        if(err){ alert(err); if(btn) btn.disabled=false; return; }
-
-        // show staged loading modal
-        const loading = document.getElementById('loadingModal');
-        loading.classList.add('show');
-        loading.setAttribute('aria-hidden','false');
-        // simple staged highlight to show progress
-        const stages = ['stage1','stage2','stage3','stage4'];
-        stages.forEach((id,i)=>{ document.getElementById(id).style.opacity = i===0 ? '1' : '0.5'; });
-        // simulate understanding
-        await wait(700);
-        document.getElementById('stage1').style.opacity='1';
-        await wait(700);
-        document.getElementById('stage2').style.opacity='1';
-        await wait(700);
-        document.getElementById('stage3').style.opacity='1';
-        await wait(700);
-        document.getElementById('stage4').style.opacity='1';
-
-        // Generation: By default use local generator. If you have a secure server-side AI endpoint, call it here.
-        // WARNING: Never put secret API keys in frontend code. Use serverless endpoints for real AI calls.
-        const generated = await generateItineraryFromForm(form);
-
-        // Render
-        renderGeneratedItinerary(generated);
-        // Hide loading
-        loading.classList.remove('show');
-        loading.setAttribute('aria-hidden','true');
-        document.getElementById('generatedPanel').style.display='block';
-        // scroll to generated area
-        window.scrollTo({top: document.getElementById('generatedPanel').offsetTop - 10, behavior:'smooth'});
-        // success voice
-        if(!settings.muted) speakText('Your AI-powered travel plan is ready!', 'en-IN');
-      } catch(e){
-        console.error('Trip generation error', e);
-        alert('Something went wrong while generating your trip. Please try again.');
-      } finally {
-        if(btn) btn.disabled = false;
+      navLinks.forEach(l => l.style.opacity = '1');
+      if (current) {
+        navLinks.forEach(l => l.style.fontWeight = '600');
+        current.style.fontWeight = '800';
       }
     }
+    window.addEventListener('scroll', onScroll);
+    onScroll();
 
-    function wait(ms){ return new Promise(r=>setTimeout(r,ms)); }
-
-    // Basic local itinerary & budget generator (demo). Designed to be useful and conservative.
-    async function generateItineraryFromForm(form){
-      // form: {dest,days,date,travellers,budget,style,interests}
-      // Create overall structure
-      const cityKey = (form.dest.split(',')[0] || form.dest).trim();
-      const sampleAttractions = attractions[cityKey] || [`Top sights in ${form.dest}`];
-      const days = Math.max(1, Math.min(14, parseInt(form.days,10) || 3));
-      const travellers = Math.max(1, parseInt(form.travellers,10) || 1);
-
-      // itinerary: morning/afternoon/evening bullets per day
-      const itinerary = [];
-      for(let d=1; d<=days; d++){
-        const morning = `Morning: ${d===1 ? 'Arrive & check-in' : 'Sightseeing'}`;
-        const afternoon = `Afternoon: Visit ${sampleAttractions[(d-1) % sampleAttractions.length]}`;
-        const evening = `Evening: Local food & market / coastal walk`;
-        const food = `Try local specialties: ${form.interests.includes('Food') ? 'Street food & recommended restaurants' : 'Popular local dishes'}`;
-        const transport = `Use local taxis/ride-hailing or rented two-wheeler for short distances.`;
-        const estCost = estimateDailyCost(form.style, travellers);
-        itinerary.push({
-          day: d,
-          morning,
-          afternoon,
-          evening,
-          food,
-          transport,
-          estCost
-        });
-      }
-
-      // Budget summary
-      const budgetBreakdown = computeBudgetBreakdown(form.budget, days, travellers, form.style);
-
-      return {
-        meta: {
-          destination: form.dest,
-          days, travellers, startDate: form.date, style: form.style, interests: form.interests, generatedAt: new Date().toISOString(), demo: settings.demo
-        },
-        attractions: sampleAttractions,
-        itinerary,
-        budgetBreakdown
-      };
-    }
-
-    function estimateDailyCost(style, travellers){
-      // conservative per-person daily estimates by style
-      const base = { 'Budget': 1200, 'Standard': 3000, 'Luxury': 9000, 'Adventure': 3500, 'Family': 4000, 'Relaxation': 3500 };
-      return (base[style] || 3000) * travellers;
-    }
-
-    function computeBudgetBreakdown(userBudget, days, travellers, style){
-      // create reasonable splits (estimates)
-      const accomPct = style === 'Luxury' ? 0.5 : (style === 'Budget' ? 0.35 : 0.4);
-      const foodPct = 0.18;
-      const transPct = 0.17;
-      const actPct = 0.18;
-      const miscPct = 0.07;
-
-      // If userBudget is zero or very small, compute estimated from defaults
-      let estimatedTotal = userBudget;
-      if(!userBudget || userBudget < 1000){
-        // fallback estimate from per-day per-person * days
-        const perPerson = estimateDailyCost(style,1);
-        estimatedTotal = perPerson * travellers * days;
-      }
-
-      const accom = Math.round(estimatedTotal * accomPct);
-      const food = Math.round(estimatedTotal * foodPct);
-      const trans = Math.round(estimatedTotal * transPct);
-      const act = Math.round(estimatedTotal * actPct);
-      const misc = Math.round(estimatedTotal * miscPct);
-      const calcTotal = accom + food + trans + act + misc;
-
-      return {
-        estimatedTotal: calcTotal,
-        split: { accommodation: accom, food, transport: trans, activities: act, misc },
-        userBudget: userBudget || 0
-      };
-    }
-
-    function renderGeneratedItinerary(obj){
-      // Overview
-      document.getElementById('overviewTitle').innerText = `${obj.meta.destination} — ${obj.meta.days} days`;
-      document.getElementById('overviewSub').innerText = `Travelers: ${obj.meta.travellers} • Style: ${obj.meta.style} • Demo: ${obj.meta.demo ? 'Yes' : 'No'}`;
-      document.getElementById('overviewBudget').innerText = `₹${obj.budgetBreakdown.estimatedTotal}`;
-      document.getElementById('overviewStatus').innerText = obj.meta.generatedAt ? `Generated: ${new Date(obj.meta.generatedAt).toLocaleString()}` : '';
-
-      // Itinerary area
-      const itArea = document.getElementById('itineraryArea');
-      itArea.innerHTML = '';
-      obj.itinerary.forEach(day=>{
-        const card = document.createElement('div'); card.className = 'day-card';
-        card.innerHTML = `
-          <div style="display:flex;justify-content:space-between;align-items:flex-start">
-            <div style="max-width:70%">
-              <div style="font-weight:800">Day ${day.day} — ${obj.meta.destination}</div>
-              <div class="small-muted" style="margin-top:6px">Morning</div>
-              <div style="margin-top:4px">${escapeHtml(day.morning)}</div>
-              <div class="small-muted" style="margin-top:6px">Afternoon</div>
-              <div style="margin-top:4px">${escapeHtml(day.afternoon)}</div>
-              <div class="small-muted" style="margin-top:6px">Evening</div>
-              <div style="margin-top:4px">${escapeHtml(day.evening)}</div>
-              <div class="small-muted" style="margin-top:6px">Food</div>
-              <div style="margin-top:4px">${escapeHtml(day.food)}</div>
-              <div class="small-muted" style="margin-top:6px">Transport</div>
-              <div style="margin-top:4px">${escapeHtml(day.transport)}</div>
-            </div>
-            <div style="text-align:right">
-              <div class="small-muted">Estimated cost (day)</div>
-              <div style="font-weight:800;margin-top:6px">₹${day.estCost}</div>
-            </div>
-          </div>
-        `;
-        itArea.appendChild(card);
-      });
-
-      // Budget card
-      const bd = obj.budgetBreakdown;
-      document.getElementById('estTotal').innerText = `₹${bd.estimatedTotal}`;
-      const userLabel = bd.userBudget ? `₹${bd.userBudget}` : '—';
-      document.getElementById('userBudgetLabel').innerText = userLabel;
-      document.getElementById('b_accom').innerText = `₹${bd.split.accommodation}`;
-      document.getElementById('b_food').innerText = `₹${bd.split.food}`;
-      document.getElementById('b_trans').innerText = `₹${bd.split.transport}`;
-      document.getElementById('b_act').innerText = `₹${bd.split.activities}`;
-      document.getElementById('b_misc').innerText = `₹${bd.split.misc}`;
-
-      // Fill progress: compare user budget vs estimate
-      const fillEl = document.getElementById('budgetFill');
-      let pct = 100;
-      if(bd.userBudget > 0) {
-        pct = Math.round((bd.estimatedTotal / bd.userBudget) * 100);
-      } else {
-        pct = 100;
-      }
-      pct = Math.min(200, Math.max(0, pct));
-      fillEl.style.width = Math.min(100, pct) + '%';
-      // Show recommendation when over budget
-      const overviewStatus = document.getElementById('overviewStatus');
-      if(bd.userBudget > 0 && bd.estimatedTotal > bd.userBudget){
-        overviewStatus.innerText = `Estimate exceeds your budget by ₹${bd.estimatedTotal - bd.userBudget}. Consider adjusting style or days.`;
-      }
-    }
-
-    // Save generated itinerary as a saved trip (keeps demo labeling)
-    function saveGeneratedAsTrip(){
-      const title = document.getElementById('overviewTitle').innerText || 'Saved Trip';
-      const priceText = document.getElementById('estTotal').innerText.replace(/[^\d]/g,'') || '0';
-      const booking = {
-        bookingId: generateBookingId(),
-        name: loadAuth()?.name || 'Guest User',
-        email: loadAuth()?.email || 'guest@example.com',
-        type: 'trip',
-        destination: title,
-        date: document.getElementById('dateInput').value || new Date().toISOString().split('T')[0],
-        price: parseInt(priceText || 0, 10),
-        status: 'saved',
-        createdAt: new Date().toISOString(),
-        demo: settings.demo
-      };
-      const arr = loadBookings(); arr.push(booking); saveBookings(arr);
-      alert('Generated trip saved to My Trips (Demo label applied if demo mode).');
-    }
-
-    // Create a professional PDF for the generated itinerary
-    async function downloadGeneratedPDF(){
-      try{
-        // gather data from rendered UI
-        const title = document.getElementById('overviewTitle').innerText || 'AI Trip Plan';
-        const meta = document.getElementById('overviewSub').innerText || '';
-        const est = document.getElementById('estTotal').innerText || '₹0';
-        const itCards = Array.from(document.querySelectorAll('.day-card'));
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF({unit:'pt', format:'a4'});
-        // header
-        doc.setFillColor(15,108,255); doc.rect(0,0,doc.internal.pageSize.getWidth(),80,'F');
-        doc.setTextColor(255,255,255); doc.setFontSize(20); doc.text('AI Travel Planner — Trip Document', 40, 48);
-        doc.setFontSize(12); doc.setTextColor(40); let y=110;
-        doc.text(title,40,y); y+=18;
-        doc.setFontSize(10); doc.setTextColor(80); doc.text(meta,40,y); y+=22;
-        doc.setFontSize(12); doc.setTextColor(20); doc.text(`Estimated Budget: ${est}`,40,y); y+=18;
-        doc.setFontSize(11);
-        // iterate day cards and append text
-        itCards.forEach((c,i)=>{
-          if(y > 720){ doc.addPage(); y = 40; }
-          const dayTitle = c.querySelector('div > div > div')?.innerText || `Day ${i+1}`;
-          doc.setFontSize(12); doc.setTextColor(15,15,15);
-          doc.text(dayTitle, 40, y); y += 16;
-          const lines = c.querySelectorAll('div > div > div:not(.small-muted)');
-          lines.forEach(n=>{
-            const text = n.innerText || '';
-            const wrapped = doc.splitTextToSize(text, 500);
-            doc.setFontSize(10); doc.setTextColor(70);
-            doc.text(wrapped, 40, y);
-            y += (wrapped.length * 12) + 6;
-          });
-          y += 6;
-        });
-        doc.save(`AI_Trip_${(new Date()).toISOString().slice(0,10)}.pdf`);
-      }catch(e){
-        console.error(e);
-        alert('Could not create PDF. Try again.');
-      }
-    }
-
-    /* -------------------------
-       NEW: Voice input + assistant chat (demo)
-       - Uses browser SpeechRecognition if available
-       - Local processing for simple natural language parsing
-       - Placeholder hook where secure server-side AI can be called
-       ------------------------- */
-    let recognition = null;
-    let recognizing = false;
-    let voiceOutEnabled = true;
-
-    function toggleVoice(){
-      toggleVoiceChat();
-    }
-
-    function toggleVoiceChat(){
-      if(!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)){
-        alert('Voice recognition is not supported in this browser. Please use Chrome or Edge for voice features.');
-        return;
-      }
-      if(recognizing){
-        stopRecognition();
-      } else {
-        startRecognitionForPlanner();
-      }
-    }
-
-    function startRecognitionForPlanner(){
-      // create if not existing
-      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if(!SR) { alert('Speech recognition not available.'); return; }
-      if(recognition) recognition.abort && recognition.abort();
-      recognition = new SR();
-      recognition.lang = 'en-IN';
-      recognition.interimResults = false;
-      recognition.maxAlternatives = 1;
-      recognition.onstart = ()=>{ recognizing = true; document.getElementById('voiceBtn').innerText = '🎙️ Listening...'; }
-      recognition.onerror = (e)=>{ console.warn('Recognition error', e); recognizing=false; document.getElementById('voiceBtn').innerText = '🎙️ Voice Input'; alert('Microphone error or permission denied.'); }
-      recognition.onend = ()=>{ recognizing=false; document.getElementById('voiceBtn').innerText = '🎙️ Voice Input'; }
-      recognition.onresult = (evt)=>{
-        const t = evt.results[0][0].transcript;
-        // populate planner dest if parseable; otherwise send to assistant
-        document.getElementById('chatInput').value = t;
-        sendChat(); // process via assistant (keeps a single code path)
-      };
-      recognition.start();
-    }
-
-    function startRecognitionForChat(){
-      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if(!SR) { alert('Speech recognition not available.'); return; }
-      if(recognition) recognition.abort && recognition.abort();
-      recognition = new SR();
-      recognition.lang = 'en-IN';
-      recognition.interimResults = false;
-      recognition.maxAlternatives = 1;
-      recognition.onstart = ()=>{ recognizing = true; document.getElementById('micControl').innerText = '🎙️ Listening...'; }
-      recognition.onerror = (e)=>{ console.warn('Recognition error', e); recognizing=false; document.getElementById('micControl').innerText = '🎙️'; alert('Microphone error or permission denied.'); }
-      recognition.onend = ()=>{ recognizing=false; document.getElementById('micControl').innerText = '🎙️'; }
-      recognition.onresult = (evt)=>{
-        const t = evt.results[0][0].transcript;
-        document.getElementById('chatInput').value = t;
-        // auto-send after recognition
-        sendChat();
-      };
-      recognition.start();
-    }
-
-    function stopRecognition(){
-      if(recognition && recognition.stop) recognition.stop();
-      recognizing = false;
-      document.getElementById('voiceBtn').innerText = '🎙️ Voice Input';
-      document.getElementById('micControl').innerText = '🎙️';
-    }
-
-    function toggleVoiceOut(){
-      voiceOutEnabled = !voiceOutEnabled;
-      document.getElementById('voiceOutToggle').innerText = voiceOutEnabled ? '🔊 On' : '🔇 Off';
-    }
-
-    function toggleVoice(){
-      toggleVoiceChat(); // reuse
-    }
-
-    function toggleVoiceChat(){
-      // unify behavior: when mic control on right is used
-      if(recognizing){
-        stopRecognition();
-      } else {
-        startRecognitionForChat();
-      }
-    }
-
-    // Chat flows
-    function appendChat(role, text){
-      const history = document.getElementById('chatHistory');
-      const bubble = document.createElement('div');
-      bubble.style.marginBottom = '8px';
-      bubble.style.padding = '8px';
-      bubble.style.borderRadius = '8px';
-      bubble.style.background = role==='user' ? '#eef6ff' : '#fff';
-      bubble.innerHTML = `<div style="font-size:13px">${escapeHtml(text)}</div>`;
-      history.appendChild(bubble);
-      history.scrollTop = history.scrollHeight;
-    }
-
-    async function sendChat(){
-      const input = document.getElementById('chatInput');
-      const text = (input.value || '').trim();
-      if(!text) { alert('Please type a message'); return; }
-      appendChat('user', text);
-      input.value = '';
-      appendChat('assistant', '... thinking');
-      // process locally (demo)
+    // If iframe preview blocks due to X-Frame-Options, show hint to open in new tab
+    const previewIframe = document.getElementById('previewIframe');
+    previewIframe.addEventListener('load', function() {
       try {
-        const resp = await processChatRequest(text);
-        // replace the last assistant '... thinking' with real response
-        const hist = document.getElementById('chatHistory');
-        const last = hist.lastElementChild;
-        if(last) last.remove();
-        appendChat('assistant', resp);
-        if(voiceOutEnabled && !settings.muted) speakText(resp, 'en-IN');
-      } catch(e){
-        console.error('Chat error', e);
-        const hist = document.getElementById('chatHistory');
-        const last = hist.lastElementChild;
-        if(last) last.remove();
-        appendChat('assistant', 'Something went wrong while processing your request. Please try again.');
+        const iframeDoc = previewIframe.contentDocument || previewIframe.contentWindow.document;
+        // if access is allowed, do nothing special
+      } catch (e) {
+        // cross-origin blocked — we leave the iframe as-is; user can open in new tab
       }
-    }
+    });
 
-    // A simple natural-language parser that can detect requests like:
-    // "I want a 3-day Goa trip under ₹10,000", "Plan a family trip to Kerala", "Plan a budget trip to Delhi"
-    // For a production implementation, call a secure server-side LLM and parse the structured output.
-    async function processChatRequest(text){
-      // quick heuristics
-      const lower = text.toLowerCase();
-      // detect days
-      let days = (lower.match(/(\d+)[- ]?day/) || lower.match(/(\d+)\s*days/));
-      days = days ? parseInt(days[1],10) : null;
-      // detect budget
-      let budget = (lower.match(/under[^\d]*(\d{3,})/) || lower.match(/₹\s*([0-9,]+)/) || lower.match(/([0-9,]+)\s*rupees/));
-      budget = budget ? parseInt((budget[1]||budget[0]).toString().replace(/,/g,''),10) : null;
-      // detect destination
-      let destMatch = lower.match(/to ([a-z ]{2,30})/) || lower.match(/in ([a-z ]{2,30})/);
-      let dest = destMatch ? capitalizeWords(destMatch[1].trim()) : null;
-      // detect travel style keywords
-      let style = null;
-      ['budget','standard','luxury','adventure','family','relaxation'].forEach(s=>{
-        if(lower.includes(s)) style = capitalizeWords(s);
+    // Reduce potential CLS: set iframe src only after a small delay (improves perceived load)
+    setTimeout(() => {
+      const frames = document.querySelectorAll('iframe');
+      frames.forEach(f => {
+        if (!f.src) f.src = 'https://psalekar230-coder.github.io/AI/';
       });
-      // detect interests
-      const interests = [];
-      ['nature','adventure','food','culture','shopping','history','beaches','nightlife'].forEach(i=>{
-        if(lower.includes(i)) interests.push(capitalizeWords(i));
-      });
+    }, 300);
 
-      // if parser found a clear trip intent, auto-fill planner and generate a trip
-      if((dest && days) || (dest && budget) || lower.includes('plan') || lower.includes('itinerary') ){
-        // auto populate fields (non-destructive)
-        if(dest) document.getElementById('destInput').value = dest;
-        if(days) document.getElementById('daysInput').value = days;
-        if(budget) document.getElementById('budgetInput').value = budget;
-        if(style) document.getElementById('styleInput').value = style;
-        // set interests
-        if(interests.length){
-          document.querySelectorAll('#interestsWrap input[type=checkbox]').forEach(c=>{
-            c.checked = interests.includes(c.value);
-          });
-        }
-        // generate and return summary
-        await generateMyTrip();
-        return `I've generated a ${days||document.getElementById('daysInput').value}-day plan for ${dest||document.getElementById('destInput').value}. Open the "View Itinerary" in the result panel to review.`;
-      }
-
-      // fallback: provide friendly help response
-      return `I can help plan trips. Try: "I want a 3-day Goa trip under ₹10,000" or "Plan a family trip to Kerala". You can also fill the planner and press "Generate My Trip".`;
-    }
-
-    function capitalizeWords(s){ return s.split(' ').map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(' '); }
-
-    // Update mini trips widget
-    function updateMiniTrips(){
-      const el = document.getElementById('miniTrips');
-      const arr = loadBookings().slice().reverse().slice(0,3);
-      if(!el) return;
-      if(arr.length===0){ el.innerHTML = '<div class="small-muted">No trips yet. ✨ Plan Your First Trip</div>'; return; }
-      el.innerHTML = arr.map(b=>`<div style="padding:8px;border-radius:8px;background:#fff;margin-bottom:6px"><div style="font-weight:800">${escapeHtml(b.destination)}</div><div class="small-muted">Date: ${escapeHtml(b.date)} • ₹${b.price||0}${b.demo? ' • Demo':''}</div></div>`).join('');
-    }
-
-    /* -------------------------
-       Helper UI functions
-       ------------------------- */
-
-    function downloadResume(){ alert('Resume download placeholder (not implemented).'); }
-
-    // small utility to update mini trips when bookings change
-    function updateMiniTripsWhenLoaded(){ updateMiniTrips(); }
-    window.updateMiniTripsWhenLoaded = updateMiniTripsWhenLoaded;
-
-    // Expose a safe placeholder for production integration: backend AI call
-    // IMPORTANT: Never call openAI from client with secret keys. Use a server endpoint instead.
-    async function callServerAI(prompt){
-      // Example placeholder:
-      // return fetch('/api/generate', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({prompt})}).then(r=>r.json());
-      throw new Error('Server AI integration not configured. Implement a secure server endpoint and call it from here.');
-    }
-
-    // small utility: replace earlier functions that rely on DOM
-    function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
-
+    // Accessibility: focus outlines for keyboard users
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Tab') document.documentElement.style.scrollBehavior = 'smooth';
+    });
   </script>
-
-  <script>
-(function(){if(!window.chatbase||window.chatbase("getState")!=="initialized"){window.chatbase=(...arguments)=>{if(!window.chatbase.q){window.chatbase.q=[]}window.chatbase.q.push(arguments)};window.chatbase=new Proxy(window.chatbase,{get(target,prop){if(prop==="q"){return target.q}return(...args)=>target(prop,...args)}})}const onLoad=function(){const script=document.createElement("script");script.src="https://www.chatbase.co/embed.min.js";script.id="HV4Yj_8zBBPtTn87PlXIO";script.domain="www.chatbase.co";document.body.appendChild(script)};if(document.readyState==="completed"){onLoad()}else{window.addEventListener("load",onLoad)}})();
-</script>
 </body>
 </html>
