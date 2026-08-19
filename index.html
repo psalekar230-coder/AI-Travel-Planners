@@ -182,9 +182,115 @@
 
     /* smooth scroll */
     html{scroll-behavior:smooth}
+
+    /* ================= AUTH / LOGIN ================= */
+    body.auth-locked > *:not(#authScreen){display:none !important}
+    #authScreen{
+      position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;
+      padding:24px;background:
+        radial-gradient(circle at 15% 20%,rgba(96,165,250,.18),transparent 30%),
+        radial-gradient(circle at 85% 80%,rgba(94,234,212,.14),transparent 30%),
+        linear-gradient(135deg,#020617,#071633 55%,#0f1724);
+    }
+    .auth-box{
+      width:min(440px,100%);padding:32px;border:1px solid rgba(255,255,255,.10);
+      border-radius:24px;background:rgba(255,255,255,.055);backdrop-filter:blur(18px);
+      box-shadow:0 25px 80px rgba(0,0,0,.55);animation:authIn .5s ease;
+    }
+    @keyframes authIn{from{opacity:0;transform:translateY(20px) scale(.98)}to{opacity:1;transform:none}}
+    .auth-logo{
+      width:68px;height:68px;margin:0 auto 14px;border-radius:18px;
+      display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800;
+      color:#021124;background:linear-gradient(135deg,var(--accentA),var(--accentB));
+      box-shadow:0 12px 35px rgba(96,165,250,.25)
+    }
+    .auth-box h2{text-align:center;margin:0;color:#fff;font-size:27px}
+    .auth-sub{text-align:center;color:var(--muted);font-size:13px;margin:7px 0 24px}
+    .auth-field{margin-bottom:15px}
+    .auth-field label{display:block;color:#dbeafe;font-size:13px;font-weight:600;margin-bottom:7px}
+    .auth-input-wrap{position:relative}
+    .auth-input-wrap i{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#7dd3fc}
+    .auth-input{
+      width:100%;padding:13px 44px;border-radius:12px;border:1px solid rgba(255,255,255,.10);
+      background:rgba(2,6,23,.55);color:#fff;outline:none;font-family:inherit;font-size:14px;
+      transition:.2s;
+    }
+    .auth-input:focus{border-color:var(--accentB);box-shadow:0 0 0 3px rgba(96,165,250,.10)}
+    .auth-password-toggle{
+      position:absolute;right:11px;top:50%;transform:translateY(-50%);border:0;background:none;
+      color:var(--muted);cursor:pointer;font-size:15px
+    }
+    .auth-btn{
+      width:100%;border:0;cursor:pointer;padding:13px 16px;border-radius:12px;
+      background:linear-gradient(90deg,var(--accentA),var(--accentB));color:#021124;
+      font-family:inherit;font-weight:800;font-size:15px;box-shadow:0 12px 30px rgba(2,6,23,.45)
+    }
+    .auth-switch{text-align:center;margin-top:18px;color:var(--muted);font-size:13px}
+    .auth-switch button{border:0;background:none;color:var(--accentA);font:inherit;font-weight:800;cursor:pointer}
+    .auth-error{min-height:20px;text-align:center;color:#fda4af;font-size:12px;margin:8px 0}
+    .auth-success{min-height:20px;text-align:center;color:#86efac;font-size:12px;margin:8px 0}
+    .auth-demo-note{text-align:center;margin-top:18px;font-size:11px;color:rgba(255,255,255,.48);line-height:1.5}
+    .user-area{display:flex;align-items:center;gap:8px}
+    .user-email{font-size:12px;color:var(--muted);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .logout-btn{
+      border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);color:#fff;
+      padding:9px 12px;border-radius:10px;cursor:pointer;font-family:inherit;font-weight:700
+    }
+    .logout-btn:hover{background:rgba(255,255,255,.09)}
+    @media(max-width:600px){
+      .auth-box{padding:24px}
+      .user-email{display:none}
+    }
+
   </style>
 </head>
-<body>
+<body class="auth-locked">
+  <!-- ================= LOGIN / CREATE ACCOUNT ================= -->
+  <div id="authScreen" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+    <div class="auth-box">
+      <div class="auth-logo">✈️</div>
+      <h2 id="authTitle">Welcome to AI Travel Planner</h2>
+      <p class="auth-sub" id="authSubtitle">Login to continue and start planning your journey.</p>
+
+      <form id="authForm" novalidate>
+        <div class="auth-field">
+          <label for="authEmail">Email Address</label>
+          <div class="auth-input-wrap">
+            <i class="fa-solid fa-envelope"></i>
+            <input class="auth-input" id="authEmail" type="email" autocomplete="email"
+                   placeholder="Enter your email" required>
+          </div>
+        </div>
+
+        <div class="auth-field">
+          <label for="authPassword">Password</label>
+          <div class="auth-input-wrap">
+            <i class="fa-solid fa-lock"></i>
+            <input class="auth-input" id="authPassword" type="password" autocomplete="current-password"
+                   placeholder="Enter your password" minlength="6" required>
+            <button class="auth-password-toggle" type="button" id="togglePassword" aria-label="Show password">
+              <i class="fa-solid fa-eye"></i>
+            </button>
+          </div>
+        </div>
+
+        <div id="authMessage" class="auth-error" aria-live="polite"></div>
+        <button class="auth-btn" id="authSubmit" type="submit">
+          <i class="fa-solid fa-right-to-bracket"></i> Login
+        </button>
+      </form>
+
+      <div class="auth-switch">
+        <span id="switchText">Don't have an account?</span>
+        <button type="button" id="switchAuth">Create Account</button>
+      </div>
+
+      <div class="auth-demo-note">
+        Demo authentication for this GitHub Pages project. For production, use Firebase Authentication or a secure backend.
+      </div>
+    </div>
+  </div>
+
   <header class="site-header" role="banner">
     <div class="brand" aria-hidden="false">
       <div class="logo" aria-hidden="true">PS</div>
@@ -209,6 +315,12 @@
       <a class="cta" id="launchDemoTop" href="https://psalekar230-coder.github.io/AI/" target="_blank" rel="noopener noreferrer">
         <i class="fa-solid fa-rocket"></i> Try Live Demo
       </a>
+      <div class="user-area" id="userArea">
+        <span class="user-email" id="loggedInEmail"></span>
+        <button class="logout-btn" id="logoutBtn" type="button">
+          <i class="fa-solid fa-right-from-bracket"></i> Logout
+        </button>
+      </div>
     </nav>
   </header>
 
@@ -544,6 +656,155 @@
   </main>
 
   <script>
+
+    /* ================= AUTHENTICATION =================
+       Static GitHub Pages demo:
+       - Accounts are stored in localStorage.
+       - Login session is stored in sessionStorage.
+       - Do NOT use this storage approach for real production passwords.
+    */
+    (() => {
+      const USERS_KEY = 'aiTravelPlannerUsers';
+      const SESSION_KEY = 'aiTravelPlannerSession';
+
+      const authScreen = document.getElementById('authScreen');
+      const authForm = document.getElementById('authForm');
+      const authTitle = document.getElementById('authTitle');
+      const authSubtitle = document.getElementById('authSubtitle');
+      const authSubmit = document.getElementById('authSubmit');
+      const switchAuth = document.getElementById('switchAuth');
+      const switchText = document.getElementById('switchText');
+      const authMessage = document.getElementById('authMessage');
+      const authEmail = document.getElementById('authEmail');
+      const authPassword = document.getElementById('authPassword');
+      const togglePassword = document.getElementById('togglePassword');
+      const logoutBtn = document.getElementById('logoutBtn');
+      const loggedInEmail = document.getElementById('loggedInEmail');
+
+      let createMode = false;
+
+      function getUsers() {
+        try { return JSON.parse(localStorage.getItem(USERS_KEY) || '{}'); }
+        catch { return {}; }
+      }
+
+      function saveUsers(users) {
+        localStorage.setItem(USERS_KEY, JSON.stringify(users));
+      }
+
+      function showMessage(text, success = false) {
+        authMessage.textContent = text;
+        authMessage.className = success ? 'auth-success' : 'auth-error';
+      }
+
+      function setMode(create) {
+        createMode = create;
+        authForm.reset();
+        showMessage('');
+        if (createMode) {
+          authTitle.textContent = 'Create Your Account';
+          authSubtitle.textContent = 'Create an account to access AI Travel Planner.';
+          authSubmit.innerHTML = '<i class="fa-solid fa-user-plus"></i> Create Account';
+          switchText.textContent = 'Already have an account?';
+          switchAuth.textContent = 'Login';
+          authPassword.setAttribute('autocomplete', 'new-password');
+        } else {
+          authTitle.textContent = 'Welcome to AI Travel Planner';
+          authSubtitle.textContent = 'Login to continue and start planning your journey.';
+          authSubmit.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> Login';
+          switchText.textContent = "Don't have an account?";
+          switchAuth.textContent = 'Create Account';
+          authPassword.setAttribute('autocomplete', 'current-password');
+        }
+        setTimeout(() => authEmail.focus(), 50);
+      }
+
+      function showApp(email) {
+        document.body.classList.remove('auth-locked');
+        authScreen.style.display = 'none';
+        if (loggedInEmail) loggedInEmail.textContent = email;
+      }
+
+      function showLogin() {
+        document.body.classList.add('auth-locked');
+        authScreen.style.display = 'flex';
+        setMode(false);
+      }
+
+      function validate(email, password) {
+        if (!email) return 'Please enter your email address.';
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return 'Please enter a valid email address.';
+        if (!password) return 'Please enter your password.';
+        if (password.length < 6) return 'Password must be at least 6 characters.';
+        return '';
+      }
+
+      authForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const email = authEmail.value.trim().toLowerCase();
+        const password = authPassword.value;
+        const validationError = validate(email, password);
+        if (validationError) {
+          showMessage(validationError);
+          return;
+        }
+
+        const users = getUsers();
+
+        if (createMode) {
+          if (users[email]) {
+            showMessage('This email is already registered. Please login.');
+            return;
+          }
+          users[email] = {
+            email,
+            password,
+            createdAt: new Date().toISOString()
+          };
+          saveUsers(users);
+          sessionStorage.setItem(SESSION_KEY, email);
+          showMessage('Account created successfully! Opening your planner...', true);
+          setTimeout(() => showApp(email), 350);
+        } else {
+          if (!users[email]) {
+            showMessage('Account not found. Please create an account first.');
+            return;
+          }
+          if (users[email].password !== password) {
+            showMessage('Incorrect email or password. Please try again.');
+            return;
+          }
+          sessionStorage.setItem(SESSION_KEY, email);
+          showMessage('Login successful! Welcome back.', true);
+          setTimeout(() => showApp(email), 250);
+        }
+      });
+
+      switchAuth.addEventListener('click', () => setMode(!createMode));
+
+      togglePassword.addEventListener('click', () => {
+        const isPassword = authPassword.type === 'password';
+        authPassword.type = isPassword ? 'text' : 'password';
+        togglePassword.innerHTML = isPassword
+          ? '<i class="fa-solid fa-eye-slash"></i>'
+          : '<i class="fa-solid fa-eye"></i>';
+        togglePassword.setAttribute('aria-label', isPassword ? 'Hide password' : 'Show password');
+      });
+
+      logoutBtn.addEventListener('click', () => {
+        sessionStorage.removeItem(SESSION_KEY);
+        showLogin();
+        window.scrollTo({top: 0, behavior: 'smooth'});
+      });
+
+      const existingSession = sessionStorage.getItem(SESSION_KEY);
+      if (existingSession) {
+        showApp(existingSession);
+      } else {
+        showLogin();
+      }
+    })();
+
     // Preserve existing light interactions and mobile nav toggle behavior.
     const navToggle = document.getElementById('navToggle');
     const mainNav = document.querySelector('nav.main-nav');
